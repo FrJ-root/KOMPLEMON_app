@@ -65,7 +65,6 @@ class UserResource extends Resource
                     ->sortable(),
             ])
             ->filters([
-                //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

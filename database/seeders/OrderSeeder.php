@@ -27,7 +27,7 @@ class OrderSeeder extends Seeder
                 'client_id' => $clientId,
                 'date_commande' => $orderDate,
                 'statut' => $status,
-                'total' => 0, // Will be updated later
+                'total' => 0,
                 'historique' => json_encode([
                     [
                         'date' => $orderDate->format('Y-m-d H:i:s'),
@@ -42,7 +42,6 @@ class OrderSeeder extends Seeder
         
         DB::table('commandes')->insert($orders);
         
-        // Now create order details and update order totals
         $orderIds = DB::table('commandes')->pluck('id')->toArray();
         
         foreach ($orderIds as $orderId) {

@@ -11,12 +11,12 @@ class ProductVariation extends Model
     use HasFactory;
 
     protected $fillable = [
+        'stock_quantity',
         'product_id',
-        'size',
         'quantity',
         'flavor',
         'price',
-        'stock_quantity',
+        'size',
     ];
 
     public function product(): BelongsTo

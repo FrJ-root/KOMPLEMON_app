@@ -3,23 +3,22 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Model;
 
 class OrderItem extends Model
 {
     use HasFactory;
 
-    // Specify the table name
     protected $table = 'details_commandes';
 
     protected $fillable = [
-        'order_id',
-        'product_id',
         'product_variation_id',
-        'quantity',
-        'unit_price',
         'total_price',
+        'unit_price',
+        'product_id',
+        'order_id',
+        'quantity',
     ];
 
     public function order(): BelongsTo

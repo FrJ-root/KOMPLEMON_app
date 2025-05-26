@@ -24,7 +24,7 @@ class OrderResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('client_id') // Changed from customer_id
+                Forms\Components\Select::make('client_id')
                     ->relationship('customer', 'name')
                     ->searchable()
                     ->required(),
@@ -34,7 +34,7 @@ class OrderResource extends Resource
                     ->maxLength(255)
                     ->default(fn () => 'ORD-' . strtoupper(substr(md5(microtime()), 0, 8))),
                     
-                Forms\Components\Select::make('statut') // Changed from status
+                Forms\Components\Select::make('statut')
                     ->options([
                         'en attente' => 'En attente',
                         'confirmé' => 'Confirmé',
@@ -44,7 +44,7 @@ class OrderResource extends Resource
                     ])
                     ->required(),
                     
-                Forms\Components\TextInput::make('total') // Changed from total_amount
+                Forms\Components\TextInput::make('total')
                     ->required()
                     ->numeric()
                     ->prefix('€'),
@@ -72,7 +72,7 @@ class OrderResource extends Resource
                     ])
                     ->required(),
                     
-                Forms\Components\Textarea::make('historique') // History field
+                Forms\Components\Textarea::make('historique')
                     ->columnSpanFull(),
                     
                 Forms\Components\Textarea::make('notes')
@@ -91,11 +91,11 @@ class OrderResource extends Resource
                     ->searchable()
                     ->sortable(),
                     
-                Tables\Columns\TextColumn::make('total') // Changed from total_amount
+                Tables\Columns\TextColumn::make('total')
                     ->money('EUR')
                     ->sortable(),
                     
-                Tables\Columns\SelectColumn::make('statut') // Changed from status
+                Tables\Columns\SelectColumn::make('statut')
                     ->options([
                         'en attente' => 'En attente',
                         'confirmé' => 'Confirmé',
@@ -105,12 +105,12 @@ class OrderResource extends Resource
                     ])
                     ->sortable(),
                     
-                Tables\Columns\TextColumn::make('date_commande') // Order date instead of created_at
+                Tables\Columns\TextColumn::make('date_commande')
                     ->dateTime()
                     ->sortable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('statut') // Changed from status
+                Tables\Filters\SelectFilter::make('statut')
                     ->options([
                         'en attente' => 'En attente',
                         'confirmé' => 'Confirmé',

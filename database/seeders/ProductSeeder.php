@@ -10,16 +10,14 @@ class ProductSeeder extends Seeder
 {
     public function run(): void
     {
-        // Get category IDs
         $categoryIds = DB::table('categories')->pluck('id')->toArray();
         
-        // Create 30 products
         $products = [];
         
         for ($i = 1; $i <= 30; $i++) {
             $categoryId = $categoryIds[array_rand($categoryIds)];
-            $prix = rand(1000, 10000) / 100; // Price between 10 and 100 euros
-            $prixPromo = rand(0, 1) ? (rand(500, $prix*100 - 100) / 100) : null; // 50% chance of having a promo price
+            $prix = rand(1000, 10000) / 100;
+            $prixPromo = rand(0, 1) ? (rand(500, $prix*100 - 100) / 100) : null;
 
             $ingredients = json_encode([
                 ['name' => 'Ingredient ' . $i . '-1', 'quantity' => rand(10, 100) . 'mg'],
@@ -42,7 +40,7 @@ class ProductSeeder extends Seeder
                 'stock' => rand(0, 100),
                 'ingredients' => $ingredients,
                 'valeurs_nutritionnelles' => $nutritionalValues,
-                'statut' => rand(0, 3) > 0 ? 'publié' : 'brouillon', // 75% published, 25% draft
+                'statut' => rand(0, 3) > 0 ? 'publié' : 'brouillon',
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
@@ -50,7 +48,6 @@ class ProductSeeder extends Seeder
         
         DB::table('produits')->insert($products);
         
-        // Add product media
         $productIds = DB::table('produits')->pluck('id')->toArray();
         $mediaEntries = [];
         
@@ -66,8 +63,7 @@ class ProductSeeder extends Seeder
                 ];
             }
             
-            // Add a video for some products
-            if (rand(0, 4) === 0) { // 20% chance
+            if (rand(0, 4) === 0) {
                 $mediaEntries[] = [
                     'produit_id' => $productId,
                     'url' => 'produits/produit_' . $productId . '_video.mp4',

@@ -7,9 +7,6 @@ use Illuminate\Support\ServiceProvider;
 
 class SettingsServiceProvider extends ServiceProvider
 {
-    /**
-     * Register services.
-     */
     public function register(): void
     {
         $this->app->singleton('settings', function ($app) {
@@ -17,11 +14,7 @@ class SettingsServiceProvider extends ServiceProvider
         });
     }
 
-    /**
-     * Bootstrap services.
-     */
     public function boot(): void
     {
-        //
     }
 }

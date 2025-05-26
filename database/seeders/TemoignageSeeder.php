@@ -18,7 +18,7 @@ class TemoignageSeeder extends Seeder
                 'nom_client' => $faker->name,
                 'contenu' => $faker->paragraph(rand(2, 5)),
                 'media_url' => rand(0, 1) ? 'testimonials/client_' . ($i+1) . '.jpg' : null,
-                'statut' => rand(0, 3) > 0 ? 'approuvé' : 'en attente', // 75% approved, 25% pending
+                'statut' => rand(0, 3) > 0 ? 'approuvé' : 'en attente',
                 'created_at' => $faker->dateTimeBetween('-6 months', 'now'),
                 'updated_at' => now(),
             ];

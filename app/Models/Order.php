@@ -3,26 +3,24 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
     use HasFactory;
 
-    // Specify the table name
     protected $table = 'commandes';
 
     protected $fillable = [
-        'client_id', // Changed from customer_id to match DB schema
-        'date_commande', // Order date field
-        'statut', // Instead of status
-        'total', // Instead of total_amount
-        'historique', // History field
+        'date_commande',
+        'historique',
+        'client_id',
+        'statut',
+        'total',
     ];
 
-    // Mapping for more intuitive property access
     public function getStatusAttribute()
     {
         return $this->statut;
@@ -35,16 +33,16 @@ class Order extends Model
 
     public function customer(): BelongsTo
     {
-        return $this->belongsTo(Customer::class, 'client_id'); // Specify the foreign key
+        return $this->belongsTo(Customer::class, 'client_id');
     }
 
     public function items(): HasMany
     {
-        return $this->hasMany(OrderItem::class, 'commande_id'); // Specify the foreign key
+        return $this->hasMany(OrderItem::class, 'commande_id');
     }
 
     public function statusHistory(): HasMany
     {
-        return $this->hasMany(OrderStatusHistory::class, 'commande_id'); // Specify the foreign key
+        return $this->hasMany(OrderStatusHistory::class, 'commande_id');
     }
 }

@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class BlogPost extends Model
 {
@@ -13,12 +13,12 @@ class BlogPost extends Model
     protected $table = 'articles_blog';
 
     protected $fillable = [
-        'title',
         'slug',
-        'content',
+        'title',
         'status',
-        'published_at',
+        'content',
         'author_id',
+        'published_at',
     ];
 
     protected $casts = [

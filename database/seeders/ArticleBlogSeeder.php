@@ -25,7 +25,7 @@ class ArticleBlogSeeder extends Seeder
                 'contenu' => $faker->paragraphs(rand(3, 8), true),
                 'categorie' => $category,
                 'tags' => $tags,
-                'statut' => rand(0, 4) > 0 ? 'publié' : 'brouillon', // 80% published, 20% draft
+                'statut' => rand(0, 4) > 0 ? 'publié' : 'brouillon',
                 'created_at' => $createdAt,
                 'updated_at' => $createdAt,
             ];

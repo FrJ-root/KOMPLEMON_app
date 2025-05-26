@@ -144,6 +144,6 @@ class ProductResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
-        return false; // Hide from navigation
+        return false;
     }
 }

@@ -4,14 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-// Temporarily commented out
-// use Spatie\MediaLibrary\HasMedia;
-// use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Testimonial extends Model
 {
     use HasFactory;
-    // Remove InteractsWithMedia trait
     
     protected $table = 'temoignages';
 
@@ -19,6 +15,6 @@ class Testimonial extends Model
         'customer_name',
         'content',
         'rating',
-        'status', // 'approved', 'pending', 'rejected'
+        'status',
     ];
 }

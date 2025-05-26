@@ -13,9 +13,9 @@ class Category extends Model
     protected $table = 'categories';
 
     protected $fillable = [
-        'nom',
         'description',
         'image_url',
+        'nom',
     ];
 
     public function products(): HasMany
@@ -23,7 +23,6 @@ class Category extends Model
         return $this->hasMany(Product::class, 'categorie_id');
     }
     
-    // Add accessor to make the code work with both 'nom' and 'name'
     public function getNameAttribute()
     {
         return $this->nom;

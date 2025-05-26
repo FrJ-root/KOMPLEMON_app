@@ -11,14 +11,13 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             UserSeeder::class,
-            // Comment out seeders that don't exist yet to avoid errors
-            // CategorySeeder::class,
-            // ProductSeeder::class,
-            // ClientSeeder::class,
-            // OrderSeeder::class,
-            // ArticleBlogSeeder::class,
-            // TemoignageSeeder::class,
-            // PromotionSeeder::class,
+            CategorySeeder::class,
+            ProductSeeder::class,
+            ClientSeeder::class,
+            OrderSeeder::class,
+            ArticleBlogSeeder::class,
+            TemoignageSeeder::class,
+            PromotionSeeder::class,
         ]);
     }
 }
