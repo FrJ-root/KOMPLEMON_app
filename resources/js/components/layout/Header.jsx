@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaShoppingCart, FaSearch, FaUser, FaBars, FaTimes } from 'react-icons/fa';
+import { FaShoppingCart, FaSearch, FaUser, FaBars, FaTimes, FaSignInAlt, FaUserPlus } from 'react-icons/fa';
 import logoImage from '../../assets/KOMPLEMON_logo.png';
 
 const Header = () => {
@@ -51,13 +51,10 @@ const Header = () => {
     };
   }, []);
   
-  // Scroll to footer function for About and Contact links
-  const scrollToFooter = (section) => {
+    const scrollToFooter = (section) => {
     const footer = document.querySelector('.footer');
     if (footer) {
       footer.scrollIntoView({ behavior: 'smooth' });
-      
-      // Save section info in sessionStorage to highlight the proper section
       sessionStorage.setItem('scrollToFooterSection', section);
     }
   };
@@ -70,7 +67,7 @@ const Header = () => {
             src={logoImage} 
             alt="KOMPLEMON" 
             className="logo-image" 
-            style={{ height: '90px', maxWidth: '360px' }} // Much bigger logo
+            style={{ height: '90px', maxWidth: '360px' }}
           />
         </Link>
         
@@ -83,6 +80,15 @@ const Header = () => {
         </div>
         
         <div className="header-actions">
+          <div className="auth-buttons">
+            <Link to="/login" className="login-btn">
+              <FaSignInAlt /> <span>Login</span>
+            </Link>
+            <Link to="/signup" className="signup-btn">
+              <FaUserPlus /> <span>Sign Up</span>
+            </Link>
+          </div>
+          
           <div className="icon-button-wrapper">
             <button className="icon-button search-button">
               <FaSearch className="icon-svg" />

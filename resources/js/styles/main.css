@@ -957,6 +957,10 @@ button:hover {
     flex-direction: column;
     align-items: flex-start;
   }
+  
+  .auth-buttons {
+    display: none;
+  }
 }
 
 @media (max-width: 768px) {
@@ -2115,5 +2119,68 @@ button:hover {
   
   .category-icon {
     font-size: 2.5rem;
+  }
+}
+
+/* Auth Buttons */
+.auth-buttons {
+  display: flex;
+  gap: 12px;
+  margin-right: 15px;
+}
+
+.login-btn, .signup-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.login-btn {
+  background-color: transparent;
+  border: 1px solid var(--accent-color);
+  color: var(--accent-color);
+}
+
+.login-btn:hover {
+  background-color: rgba(248, 161, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.signup-btn {
+  background-color: var(--accent-color);
+  border: 1px solid var(--accent-color);
+  color: #000;
+}
+
+.signup-btn:hover {
+  background-color: #ffb934;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 992px) {
+  .auth-buttons {
+    display: none;
+  }
+  
+  .nav-links.mobile-active .auth-buttons {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 0 20px;
+    margin: 15px 0;
+  }
+  
+  .nav-links.mobile-active .login-btn,
+  .nav-links.mobile-active .signup-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px;
   }
 }
