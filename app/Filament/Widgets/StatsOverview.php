@@ -2,56 +2,66 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Coupon;
 use App\Models\Customer;
 use App\Models\Order;
-use App\Models\User;
+use App\Models\Product;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class StatsOverview extends BaseWidget
 {
-    protected static ?string $pollingInterval = '30s';
-
     protected function getStats(): array
     {
-        $totalSales = Order::where('statut', 'confirmé')->sum('total') ?? 0;
-        $totalOrders = Order::count() ?? 0;
-        $pendingOrders = Order::where('statut', 'en attente')->count() ?? 0;
-        $totalCustomers = Customer::count() ?? 0;
-        $totalUsers = User::count() ?? 0;
-        $activeCoupons = Coupon::where('is_active', true)
-            ->where(function($query) {
-                $query->whereNull('expires_at')
-                      ->orWhere('expires_at', '>', now());
-            })->count() ?? 0;
+        $totalSales = Order::where('statut', '!=', 'annulé')->sum('total');
+        $totalOrders = Order::count();
+        $pendingOrders = Order::where('statut', 'en attente')->count();
+        $totalProducts = Product::count();
+        $totalCustomers = Customer::count();
         
+        $ordersThisMonth = Order::whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->where('statut', '!=', 'annulé')
+            ->count();
+            
+        $ordersLastMonth = Order::whereMonth('created_at', now()->subMonth()->month)
+            ->whereYear('created_at', now()->subMonth()->year)
+            ->where('statut', '!=', 'annulé')
+            ->count();
+            
+        $salesThisMonth = Order::whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->where('statut', '!=', 'annulé')
+            ->sum('total');
+        
+        $percentChange = $ordersLastMonth > 0 
+            ? round((($ordersThisMonth - $ordersLastMonth) / $ordersLastMonth) * 100, 2) 
+            : 0;
+            
         return [
-            Stat::make('Total Sales', '€' . number_format($totalSales, 2))
-                ->description('Overall revenue')
-                ->descriptionIcon('heroicon-m-arrow-trending-up')
-                ->chart([7, 2, 10, 3, 15, 4, 17])
+            Stat::make('Ventes totales', number_format($totalSales, 2) . ' €')
+                ->description('Chiffre d\'affaires global')
+                ->descriptionIcon('heroicon-m-chart-bar')
                 ->color('success'),
-            
-            Stat::make('Orders', $totalOrders)
-                ->description('Pending: ' . $pendingOrders)
-                ->descriptionIcon('heroicon-m-shopping-bag')
-                ->color('warning'),
-            
-            Stat::make('Customers', $totalCustomers)
-                ->description('Registered users')
+                
+            Stat::make('Commandes', $totalOrders)
+                ->description($pendingOrders . ' en attente')
+                ->descriptionIcon('heroicon-m-truck')
+                ->color('primary'),
+                
+            Stat::make('Commandes ce mois', $ordersThisMonth)
+                ->description($percentChange >= 0 ? '+' . $percentChange . '%' : $percentChange . '%')
+                ->descriptionIcon($percentChange >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
+                ->color($percentChange >= 0 ? 'success' : 'danger'),
+                
+            Stat::make('Clients', $totalCustomers)
+                ->description('Base clientèle')
                 ->descriptionIcon('heroicon-m-user-group')
+                ->color('warning'),
+                
+            Stat::make('Produits', $totalProducts)
+                ->description('Catalogue complet')
+                ->descriptionIcon('heroicon-m-shopping-bag')
                 ->color('info'),
-                
-            Stat::make('Admin Users', $totalUsers)
-                ->description('Backend users')
-                ->descriptionIcon('heroicon-m-key')
-                ->color('secondary'),
-                
-            Stat::make('Active Coupons', $activeCoupons)
-                ->description('Available for use')
-                ->descriptionIcon('heroicon-m-ticket')
-                ->color('success'),
         ];
     }
 }

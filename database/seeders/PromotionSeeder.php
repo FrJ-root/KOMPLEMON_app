@@ -22,6 +22,10 @@ class PromotionSeeder extends Seeder
             $type = rand(0, 1) === 0 ? 'pourcentage' : 'montant';
             $value = $type === 'pourcentage' ? rand(5, 50) : rand(500, 3000) / 100;
             
+            // Sometimes add minimum amount and usage limits
+            $minimumAmount = rand(0, 1) === 1 ? rand(2000, 10000) / 100 : null;
+            $usageLimit = rand(0, 1) === 1 ? rand(1, 100) : null;
+            
             $promotions[] = [
                 'code' => strtoupper(Str::random(8)),
                 'type' => $type,
@@ -29,6 +33,13 @@ class PromotionSeeder extends Seeder
                 'date_debut' => $startDate,
                 'date_fin' => $endDate,
                 'utilisation_unique' => rand(0, 1),
+                'nombre_utilisations' => 0,
+                'limite_utilisations' => $usageLimit,
+                'description' => $faker->sentence(),
+                'actif' => true,
+                'montant_minimum' => $minimumAmount,
+                'produits_applicables' => null,
+                'categories_applicables' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];

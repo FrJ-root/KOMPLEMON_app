@@ -1,0 +1,7 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+/* Custom theming for KOMPLEMON admin panel */
+:root {
+    --primary: 120 50% 50%;
+    --primary-foreground: 0 0% 100%;
+}

@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Filament\Facades\Filament;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,6 +31,10 @@ class AppServiceProvider extends ServiceProvider
         
         $this->app->singleton(Permission::class, function ($app) {
             return new Permission();
+        });
+        
+        Filament::serving(function () {
+            // Customize Filament here if needed
         });
     }
 }

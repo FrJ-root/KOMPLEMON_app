@@ -3,80 +3,102 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\OrderResource\Pages;
+use App\Filament\Resources\OrderResource\RelationManagers;
 use App\Models\Order;
 use Filament\Forms;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Collection;
 
 class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
-
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
-    
-    protected static ?string $navigationGroup = 'Sales Management';
+    protected static ?string $navigationGroup = 'Ventes';
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('client_id')
-                    ->relationship('customer', 'name')
-                    ->searchable()
-                    ->required(),
+                Grid::make(3)
+                    ->schema([
+                        Card::make()
+                            ->columnSpan(2)
+                            ->schema([
+                                Select::make('client_id')
+                                    ->relationship('customer', 'email')
+                                    ->searchable()
+                                    ->preload()
+                                    ->required()
+                                    ->label('Client'),
+                                    
+                                DateTimePicker::make('date_commande')
+                                    ->label('Date de commande')
+                                    ->required(),
+                                    
+                                Select::make('statut')
+                                    ->label('Statut')
+                                    ->options([
+                                        'en attente' => 'En attente',
+                                        'confirmé' => 'Confirmé',
+                                        'expédié' => 'Expédié',
+                                        'livré' => 'Livré',
+                                        'annulé' => 'Annulé',
+                                    ])
+                                    ->required(),
+                                    
+                                TextInput::make('total')
+                                    ->label('Total')
+                                    ->numeric()
+                                    ->prefix('€')
+                                    ->disabled()
+                                    ->required(),
+                            ]),
+                            
+                        Card::make()
+                            ->columnSpan(1)
+                            ->schema([
+                                Forms\Components\Placeholder::make('created_at')
+                                    ->label('Créée le')
+                                    ->content(fn (Order $record): string => $record->created_at->format('d/m/Y H:i')),
+                                    
+                                Forms\Components\Placeholder::make('updated_at')
+                                    ->label('Dernière mise à jour')
+                                    ->content(fn (Order $record): string => $record->updated_at->format('d/m/Y H:i')),
+                            ]),
+                    ]),
                     
-                Forms\Components\TextInput::make('order_number')
-                    ->required()
-                    ->maxLength(255)
-                    ->default(fn () => 'ORD-' . strtoupper(substr(md5(microtime()), 0, 8))),
-                    
-                Forms\Components\Select::make('statut')
-                    ->options([
-                        'en attente' => 'En attente',
-                        'confirmé' => 'Confirmé',
-                        'expédié' => 'Expédié',
-                        'livré' => 'Livré',
-                        'annulé' => 'Annulé',
-                    ])
-                    ->required(),
-                    
-                Forms\Components\TextInput::make('total')
-                    ->required()
-                    ->numeric()
-                    ->prefix('€'),
-                    
-                Forms\Components\Textarea::make('shipping_address')
-                    ->required()
-                    ->columnSpanFull(),
-                    
-                Forms\Components\Textarea::make('billing_address')
-                    ->columnSpanFull(),
-                    
-                Forms\Components\Select::make('payment_method')
-                    ->options([
-                        'credit_card' => 'Credit Card',
-                        'paypal' => 'PayPal',
-                        'bank_transfer' => 'Bank Transfer',
-                    ])
-                    ->required(),
-                    
-                Forms\Components\Select::make('payment_status')
-                    ->options([
-                        'pending' => 'Pending',
-                        'paid' => 'Paid',
-                        'refunded' => 'Refunded',
-                    ])
-                    ->required(),
-                    
-                Forms\Components\Textarea::make('historique')
-                    ->columnSpanFull(),
-                    
-                Forms\Components\Textarea::make('notes')
-                    ->columnSpanFull(),
+                Section::make('Historique des statuts')
+                    ->schema([
+                        Repeater::make('historique')
+                            ->schema([
+                                DateTimePicker::make('date')
+                                    ->required(),
+                                Select::make('statut')
+                                    ->options([
+                                        'en attente' => 'En attente',
+                                        'confirmé' => 'Confirmé',
+                                        'expédié' => 'Expédié',
+                                        'livré' => 'Livré',
+                                        'annulé' => 'Annulé',
+                                    ])
+                                    ->required(),
+                                TextInput::make('commentaire')
+                                    ->maxLength(255),
+                            ])
+                            ->columns(3),
+                    ]),
             ]);
     }
 
@@ -84,57 +106,42 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
+                TextColumn::make('id')
+                    ->label('ID')
+                    ->sortable(),
+                TextColumn::make('date_commande')
+                    ->label('Date')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable(),
+                TextColumn::make('customer.email')
+                    ->label('Client')
                     ->searchable(),
-                    
-                Tables\Columns\TextColumn::make('customer.name')
-                    ->searchable()
+                TextColumn::make('statut')
+                    ->label('Statut')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'en attente' => 'warning',
+                        'confirmé' => 'info',
+                        'expédié' => 'success',
+                        'livré' => 'success',
+                        'annulé' => 'danger',
+                    })
                     ->sortable(),
-                    
-                Tables\Columns\TextColumn::make('total')
+                TextColumn::make('total')
+                    ->label('Total')
                     ->money('EUR')
-                    ->sortable(),
-                    
-                Tables\Columns\SelectColumn::make('statut')
-                    ->options([
-                        'en attente' => 'En attente',
-                        'confirmé' => 'Confirmé',
-                        'expédié' => 'Expédié',
-                        'livré' => 'Livré',
-                        'annulé' => 'Annulé',
-                    ])
-                    ->sortable(),
-                    
-                Tables\Columns\TextColumn::make('date_commande')
-                    ->dateTime()
                     ->sortable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('statut')
+                SelectFilter::make('statut')
                     ->options([
                         'en attente' => 'En attente',
                         'confirmé' => 'Confirmé',
                         'expédié' => 'Expédié',
                         'livré' => 'Livré',
                         'annulé' => 'Annulé',
-                    ]),
-                    
-                Tables\Filters\Filter::make('created_at')
-                    ->form([
-                        Forms\Components\DatePicker::make('created_from'),
-                        Forms\Components\DatePicker::make('created_until'),
                     ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['created_from'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
-                            )
-                            ->when(
-                                $data['created_until'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
-                            );
-                    })
+                    ->label('Statut'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -143,10 +150,10 @@ class OrderResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\BulkAction::make('exportToCsv')
-                        ->label('Export to CSV')
+                    Tables\Actions\BulkAction::make('export')
+                        ->label('Exporter (CSV)')
                         ->icon('heroicon-o-document-arrow-down')
-                        ->action(fn (Collection $records) => redirect()->route('orders.export', ['format' => 'csv']))
+                        ->action(fn (Collection $records) => self::exportOrders($records)),
                 ]),
             ]);
     }
@@ -154,8 +161,7 @@ class OrderResource extends Resource
     public static function getRelations(): array
     {
         return [
-            OrderResource\RelationManagers\ItemsRelationManager::class,
-            OrderResource\RelationManagers\StatusHistoryRelationManager::class,
+            RelationManagers\ItemsRelationManager::class,
         ];
     }
 
@@ -166,5 +172,10 @@ class OrderResource extends Resource
             'create' => Pages\CreateOrder::route('/create'),
             'edit' => Pages\EditOrder::route('/{record}/edit'),
         ];
+    }
+    
+    protected static function exportOrders($records)
+    {
+        // Implémentation de l'export CSV
     }
 }
