@@ -3,26 +3,26 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PromotionResource\Pages;
-use App\Models\Promotion;
-use Filament\Forms;
-use Filament\Forms\Components\Card;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Grid;
+use Filament\Resources\Resource;
 use Filament\Tables\Table;
+use App\Models\Promotion;
+use Filament\Forms\Form;
+use Filament\Tables;
+use Filament\Forms;
 
 class PromotionResource extends Resource
 {
-    protected static ?string $model = Promotion::class;
     protected static ?string $navigationIcon = 'heroicon-o-tag';
     protected static ?string $navigationGroup = 'Marketing';
+    protected static ?string $model = Promotion::class;
     protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form

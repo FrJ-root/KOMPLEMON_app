@@ -3,27 +3,27 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\BlogPostResource\Pages;
-use App\Models\BlogPost;
-use Filament\Forms;
-use Filament\Forms\Components\Card;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Card;
+use Filament\Resources\Resource;
 use Filament\Tables\Table;
+use Filament\Forms\Form;
+use App\Models\BlogPost;
+use Filament\Tables;
+use Filament\Forms;
 
 class BlogPostResource extends Resource
 {
-    protected static ?string $model = BlogPost::class;
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
-    protected static ?string $navigationGroup = 'Content';
     protected static ?string $navigationLabel = 'Articles Blog';
+    protected static ?string $navigationGroup = 'Content';
+    protected static ?string $model = BlogPost::class;
     protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form

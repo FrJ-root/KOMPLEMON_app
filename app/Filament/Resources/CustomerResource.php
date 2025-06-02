@@ -2,24 +2,24 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\CustomerResource\Pages;
 use App\Filament\Resources\CustomerResource\RelationManagers;
-use App\Models\Customer;
-use Filament\Forms;
+use App\Filament\Resources\CustomerResource\Pages;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Forms\Form;
+use App\Models\Customer;
+use Filament\Tables;
+use Filament\Forms;
 
 class CustomerResource extends Resource
 {
-    protected static ?string $model = Customer::class;
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
     protected static ?string $navigationGroup = 'Ventes';
+    protected static ?string $model = Customer::class;
     protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form

@@ -3,26 +3,26 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\TestimonialResource\Pages;
-use App\Models\Testimonial;
-use Filament\Forms;
-use Filament\Forms\Components\Card;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Card;
+use Filament\Resources\Resource;
+use App\Models\Testimonial;
 use Filament\Tables\Table;
+use Filament\Forms\Form;
+use Filament\Tables;
+use Filament\Forms;
 
 class TestimonialResource extends Resource
 {
-    protected static ?string $model = Testimonial::class;
     protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-right';
-    protected static ?string $navigationGroup = 'Content';
     protected static ?string $navigationLabel = 'Témoignages';
+    protected static ?string $navigationGroup = 'Content';
+    protected static ?string $model = Testimonial::class;
     protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form

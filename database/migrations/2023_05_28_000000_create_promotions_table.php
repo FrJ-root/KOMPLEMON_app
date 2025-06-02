@@ -23,9 +23,9 @@ return new class extends Migration
             $table->integer('limite_utilisations')->nullable();
             $table->text('description')->nullable();
             $table->boolean('actif')->default(true);
-            $table->json('produits_applicables')->nullable(); // Specific products the promo applies to
-            $table->json('categories_applicables')->nullable(); // Specific categories the promo applies to
-            $table->decimal('montant_minimum', 10, 2)->nullable(); // Minimum order amount
+            $table->json('produits_applicables')->nullable();
+            $table->json('categories_applicables')->nullable();
+            $table->decimal('montant_minimum', 10, 2)->nullable();
             $table->timestamps();
         });
     }

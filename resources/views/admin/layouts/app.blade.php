@@ -4,504 +4,309 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>KOMPLEMON Admin</title>
+    <title>KOMPLEMON - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Base styles */
-        :root {
-            --primary: #10b981;
-            --primary-dark: #059669;
-            --secondary: #4f46e5;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --success: #10b981;
-            --info: #3b82f6;
-            --light: #f3f4f6;
-            --dark: #1f2937;
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
         }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        .hex-pattern {
+            background: linear-gradient(120deg, #000 0%, transparent 50%),
+                linear-gradient(240deg, #000 0%, transparent 50%),
+                linear-gradient(360deg, #000 0%, transparent 50%);
+            background-size: 10px 10px;
         }
-        
+        .typing::after {
+            content: '|';
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            from, to {
+                opacity: 1
+            }
+            50% {
+                opacity: 0
+            }
+        }
+        .status-pulse {
+            animation: statusPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes statusPulse {
+            0%, 100% {
+                background-color: rgba(52, 211, 153, 0.2);
+            }
+            50% {
+                background-color: rgba(52, 211, 153, 0.4);
+            }
+        }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f3f4f6;
-            color: #1f2937;
-            line-height: 1.5;
+            font-family: 'Courier New', monospace;
         }
-        
-        .dashboard {
-            display: flex;
-            min-height: 100vh;
+        #logoutPopup {
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            font-family: 'Courier New', monospace;
         }
-        
-        /* Sidebar styles */
-        .sidebar {
-            width: 260px;
-            background-color: var(--dark);
-            color: white;
-            padding: 1.5rem 0;
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-            transition: all 0.3s ease;
-            z-index: 100;
-        }
-        
-        .sidebar-header {
-            padding: 0 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: white;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .nav-list {
-            list-style: none;
-        }
-        
-        .nav-item {
-            margin-bottom: 0.5rem;
-        }
-        
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1.5rem;
-            color: #d1d5db;
-            text-decoration: none;
-            transition: all 0.3s;
-            border-left: 3px solid transparent;
-        }
-        
-        .nav-link:hover, .nav-link.active {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
-            border-left-color: var(--primary);
-        }
-        
-        .nav-icon {
-            margin-right: 0.75rem;
-            width: 1.25rem;
-            text-align: center;
-        }
-        
-        /* Main content styles */
-        .main-content {
-            flex: 1;
-            margin-left: 260px;
-            padding: 2rem;
-            min-height: 100vh;
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        
-        .welcome {
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        
-        .user-name {
-            font-weight: 500;
-        }
-        
-        /* Buttons */
-        .btn {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem;
-            font-weight: 500;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: none;
-            text-decoration: none;
-        }
-        
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-        }
-        
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background-color: #dc2626;
-        }
-        
-        /* Modal/Popup styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1050;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-        }
-        
-        .modal-content {
-            position: relative;
-            background-color: #fefefe;
-            margin: 15% auto;
+        .logout-popup-inner {
+            background-color: rgba(0, 0, 0, 0.85);
+            color: #00FF00;
+            border: 2px solid #00FF00;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+            width: 300px;
             padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 500px;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
         }
-        
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
+        .logout-popup-inner h2 {
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            color: #00FF00;
+            text-transform: uppercase;
+            text-shadow: 0 0 5px #00FF00, 0 0 10px #00FF00;
         }
-        
-        .close:hover {
-            color: black;
+        .logout-popup-inner p {
+            color: #66FF66;
+            margin-bottom: 20px;
         }
-        
-        .modal-title {
-            margin-top: 0;
-            color: #ef4444;
-        }
-        
-        .modal-footer {
+        .logout-popup-inner .flex {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
             margin-top: 20px;
-            text-align: right;
         }
-        
-        /* Media queries */
-        @media (max-width: 1024px) {
-            .sidebar {
-                width: 80px;
-            }
-            
-            .sidebar-header {
-                padding: 0 0.5rem;
-                margin-bottom: 1rem;
-            }
-            
-            .logo span {
-                display: none;
-            }
-            
-            .nav-link {
-                padding: 0.75rem;
-                justify-content: center;
-            }
-            
-            .nav-icon {
-                margin-right: 0;
-                font-size: 1.25rem;
-            }
-            
-            .nav-text {
-                display: none;
-            }
-            
-            .main-content {
-                margin-left: 80px;
-            }
+        .logout-popup-inner button {
+            background-color: transparent;
+            color: #00FF00;
+            border: 2px solid #00FF00;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            letter-spacing: 1px;
+            border-radius: 5px;
         }
-        
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 0;
-                padding: 0;
-            }
-            
-            .main-content {
-                margin-left: 0;
-            }
-            
-            .mobile-menu-toggle {
-                display: block;
-            }
-            
-            .sidebar.active {
-                width: 260px;
-                padding: 1.5rem 0;
-            }
+        .logout-popup-inner button:hover {
+            background-color: #00FF00;
+            color: #000000;
+            text-shadow: 0 0 5px #000000, 0 0 10px #000000;
+        }
+        .logout-popup-inner button:active {
+            transform: scale(0.98);
         }
     </style>
+    @stack('styles')
 </head>
-<body>
-    <div class="dashboard">
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <a href="/admin/dashboard" class="logo">
-                    <span>📦</span>
-                    <span>KOMPLEMON</span>
-                </a>
-            </div>
-            
-            <ul class="nav-list">
-                <li class="nav-item">
-                    <a href="/admin/dashboard" class="nav-link {{ request()->is('admin/dashboard') ? 'active' : '' }}">
-                        <span class="nav-icon">🏠</span>
-                        <span class="nav-text">Dashboard</span>
-                    </a>
-                </li>
-                
-                <!-- Product Management Links - visible to all but with permission checks -->
-                <li class="nav-item">
-                    <a href="/admin/products" 
-                       class="nav-link {{ request()->is('admin/products*') ? 'active' : '' }}"
-                       data-requires-role="gestionnaire_produits"
-                       onclick="return checkPermission(event, this)">
-                        <span class="nav-icon">🛍️</span>
-                        <span class="nav-text">Produits</span>
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a href="/admin/categories" 
-                       class="nav-link {{ request()->is('admin/categories*') ? 'active' : '' }}"
-                       data-requires-role="gestionnaire_produits" 
-                       onclick="return checkPermission(event, this)">
-                        <span class="nav-icon">🏷️</span>
-                        <span class="nav-text">Catégories</span>
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a href="/admin/media" 
-                       class="nav-link {{ request()->is('admin/media*') ? 'active' : '' }}"
-                       data-requires-role="gestionnaire_produits"
-                       onclick="return checkPermission(event, this)">
-                        <span class="nav-icon">🖼️</span>
-                        <span class="nav-text">Médiathèque</span>
-                    </a>
-                </li>
-                
-                <!-- Order Management Links - visible to all but with permission checks -->
-                <li class="nav-item">
-                    <a href="/admin/orders" 
-                       class="nav-link {{ request()->is('admin/orders*') ? 'active' : '' }}"
-                       data-requires-role="gestionnaire_commandes"
-                       onclick="return checkPermission(event, this)">
-                        <span class="nav-icon">📋</span>
-                        <span class="nav-text">Commandes</span>
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a href="/admin/customers" 
-                       class="nav-link {{ request()->is('admin/customers*') ? 'active' : '' }}"
-                       data-requires-role="gestionnaire_commandes"
-                       onclick="return checkPermission(event, this)">
-                        <span class="nav-icon">👥</span>
-                        <span class="nav-text">Clients</span>
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a href="/admin/export" 
-                       class="nav-link {{ request()->is('admin/export*') ? 'active' : '' }}"
-                       data-requires-role="gestionnaire_commandes"
-                       onclick="return checkPermission(event, this)">
-                        <span class="nav-icon">📤</span>
-                        <span class="nav-text">Exporter</span>
-                    </a>
-                </li>
-                
-                <!-- Content Management Links - visible to all but with permission checks -->
-                <li class="nav-item">
-                    <a href="/admin/articles" 
-                       class="nav-link {{ request()->is('admin/articles*') ? 'active' : '' }}"
-                       data-requires-role="editeur_contenu"
-                       onclick="return checkPermission(event, this)">
-                        <span class="nav-icon">📝</span>
-                        <span class="nav-text">Articles</span>
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a href="/admin/testimonials" 
-                       class="nav-link {{ request()->is('admin/testimonials*') ? 'active' : '' }}"
-                       data-requires-role="editeur_contenu"
-                       onclick="return checkPermission(event, this)">
-                        <span class="nav-icon">💬</span>
-                        <span class="nav-text">Témoignages</span>
-                    </a>
-                </li>
-                
-                <!-- Administrator-only Links - visible to all but with permission checks -->
-                <li class="nav-item">
-                    <a href="/admin/coupons" 
-                       class="nav-link {{ request()->is('admin/coupons*') ? 'active' : '' }}"
-                       data-requires-role="administrateur"
-                       onclick="return checkPermission(event, this)">
-                        <span class="nav-icon">🎟️</span>
-                        <span class="nav-text">Coupons</span>
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a href="/admin/users" 
-                       class="nav-link {{ request()->is('admin/users*') ? 'active' : '' }}"
-                       data-requires-role="administrateur"
-                       onclick="return checkPermission(event, this)">
-                        <span class="nav-icon">👤</span>
-                        <span class="nav-text">Utilisateurs</span>
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a href="/admin/settings" 
-                       class="nav-link {{ request()->is('admin/settings*') ? 'active' : '' }}"
-                       data-requires-role="administrateur"
-                       onclick="return checkPermission(event, this)">
-                        <span class="nav-icon">⚙️</span>
-                        <span class="nav-text">Paramètres</span>
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a href="/admin/statistics" 
-                       class="nav-link {{ request()->is('admin/statistics*') ? 'active' : '' }}"
-                       data-requires-role="administrateur"
-                       onclick="return checkPermission(event, this)">
-                        <span class="nav-icon">📊</span>
-                        <span class="nav-text">Statistiques</span>
-                    </a>
-                </li>
-            </ul>
+<body class="bg-gray-900">
+    @if(session('welcome_admin'))
+    <div id="welcomePopup" class="fixed inset-0 bg-black bg-opacity-90 flex justify-center items-center z-50">
+        <div class="welcome-popup-inner text-center">
+            <h2 class="text-3xl font-bold text-green-400 mb-4 typing-effect">Welcome {{ Auth::user()->name }}</h2>
+            <p class="text-green-300 text-lg mb-6 fade-in-effect">System Initializing...</p>
+            <p class="text-gray-500 text-sm fade-in-effect-delay">Access Granted. Enjoy your session.</p>
         </div>
-        
-        <div class="main-content">
-            <div class="header">
-                <div class="welcome">Bienvenue, {{ auth()->user()->name }} <span class="badge badge-primary">{{ ucfirst(auth()->user()->role) }}</span></div>
-                <div class="user-info">
-                    <span class="user-name">{{ auth()->user()->email }}</span>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="btn btn-danger">Déconnexion</button>
-                    </form>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const welcomePopup = document.getElementById('welcomePopup');        
+                welcomePopup.style.display = 'flex';
+                setTimeout(() => {
+                    welcomePopup.classList.add('fade-out');
+                    setTimeout(() => {
+                        welcomePopup.remove();
+                    }, 1000);
+                }, 8000);
+            });
+        </script>
+        <style>
+            @keyframes typing {
+                from { width: 0; }
+                to { width: 100%; }
+            }
+            .typing-effect {
+                overflow: hidden;
+                white-space: nowrap;
+                margin: 0 auto;
+                letter-spacing: 0.15em;
+                animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            .fade-in-effect {
+                opacity: 0;
+                animation: fadeIn 2s ease-in 3.5s forwards;
+            }
+            .fade-in-effect-delay {
+                opacity: 0;
+                animation: fadeIn 2s ease-in 5.5s forwards;
+            }
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+            .fade-out {
+                animation: fadeOut 1s ease-in forwards;
+            }
+        </style>
+    </div>
+    @endif
+
+    <div id="dashboard-content">
+        <!-- Admin Portal Header -->
+        <div class="admin-portal bg-gradient-to-r from-gray-900 via-black to-gray-900 relative">
+            <div class="hex-pattern absolute inset-0 opacity-5"></div>
+            <div class="container mx-auto px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center bg-black/50 rounded-lg px-4 py-2 border border-purple-500/20">
+                            <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                            <span class="ml-2 text-gray-300 font-medium">Admin Portal</span>
+                        </div>
+                        <div class="hidden md:flex items-center space-x-2">
+                            <div class="h-2 w-2 rounded-full status-pulse"></div>
+                            <span class="text-green-400 text-sm">System Status: Operational</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-4">
+                        <div class="bg-black/30 rounded-lg px-4 py-2 text-sm">
+                            <span class="text-gray-400">Session ID:</span>
+                            <span class="text-purple-400 ml-2 font-mono">{{ substr(md5(session()->getId()), 0, 6) }}</span>
+                        </div>
+                        <div class="flex items-center bg-black/30 rounded-lg px-4 py-2">
+                            <div class="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                            <span class="text-green-400 text-sm font-medium typing">Active</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-            
-            @if(session('error'))
-            <div class="alert alert-danger">
-                {{ session('error') }}
+        </div>
+
+        <div class="flex">
+            <!-- Sidebar -->
+            <div id="sidebar" class="w-64 bg-black min-h-screen p-6">
+                <div class="flex items-center gap-2 mb-8">
+                    <div class="w-8 h-8 bg-purple-600 rounded flex items-center justify-center text-white">
+                        <code class="text-sm">&lt;/&gt;</code>
+                    </div>
+                    <span class="text-xl font-bold text-purple-600">KOMPLEMON</span>
+                </div>
+
+                <nav class="space-y-4">
+                    <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 text-gray-400 hover:text-gray-200 {{ request()->is('admin/dashboard') ? 'text-gray-200' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        <span>Dashboard</span>
+                    </a>
+
+                    <a href="{{ route('products.index') }}" class="flex items-center gap-3 text-gray-400 hover:text-gray-200 {{ request()->is('admin/products*') ? 'text-gray-200' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                        <span>Produits</span>
+                    </a>
+
+                    <a href="{{ route('categories.index') }}" class="flex items-center gap-3 text-gray-400 hover:text-gray-200 {{ request()->is('admin/categories*') ? 'text-gray-200' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                        </svg>
+                        <span>Catégories</span>
+                    </a>
+
+                    <a href="{{ route('orders.index') }}" class="flex items-center gap-3 text-gray-400 hover:text-gray-200 {{ request()->is('admin/orders*') ? 'text-gray-200' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        <span>Commandes</span>
+                    </a>
+
+                    <a href="{{ route('customers.index') }}" class="flex items-center gap-3 text-gray-400 hover:text-gray-200 {{ request()->is('admin/customers*') ? 'text-gray-200' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span>Clients</span>
+                    </a>
+
+                    <a href="{{ route('admin.statistics.index') }}" class="flex items-center gap-3 text-gray-400 hover:text-gray-200 {{ request()->is('admin/statistics*') ? 'text-gray-200' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        <span>Statistiques</span>
+                    </a>
+
+                    <a href="{{ route('users.index') }}" class="flex items-center gap-3 text-gray-400 hover:text-gray-200 {{ request()->is('admin/users*') ? 'text-gray-200' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <span>Utilisateurs</span>
+                    </a>
+
+                    <a href="{{ route('admin.settings.index') }}" class="flex items-center gap-3 text-gray-400 hover:text-gray-200 {{ request()->is('admin/settings*') ? 'text-gray-200' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span>Paramètres</span>
+                    </a>
+                </nav>
+
+                <a href="#" onclick="toggleLogoutPopup()" class="flex items-center gap-3 text-gray-400 hover:text-gray-200 mt-8">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    <span>Déconnexion</span>
+                </a>
             </div>
-            @endif
-            
-            @if(session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
+
+            <!-- Main Content -->
+            <div class="flex-1 p-8">
+                @yield('content')
             </div>
-            @endif
-            
-            @yield('content')
+        </div>
+
+        <!-- Logout Popup -->
+        <div id="logoutPopup" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-50">
+            <div class="logout-popup-inner">
+                <h2 class="text-xl font-bold mb-4">Confirmation de déconnexion</h2>
+                <p class="mb-4">Êtes-vous sûr de vouloir vous déconnecter?</p>
+                <p class="text-gray-500 mb-6">Votre session sera terminée.</p>
+                <div class="flex justify-center space-x-4">
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="px-4 py-2 rounded hover:bg-green-600 transition-colors">Confirmer</button>
+                    </form>
+                    <button onclick="toggleLogoutPopup()" class="px-4 py-2 rounded hover:bg-gray-700 transition-colors">Annuler</button>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <!-- Permission Denied Modal -->
-    <div id="permissionDeniedModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <h2 class="modal-title">Accès refusé</h2>
-            <p id="permissionMessage">Vous n'avez pas les permissions nécessaires pour accéder à cette section.</p>
-            <div class="modal-footer">
-                <button class="btn btn-primary" onclick="closeModal()">OK</button>
-            </div>
-        </div>
-    </div>
-    
+
     <script>
-        // Current user role from PHP to JavaScript
-        const userRole = "{{ auth()->user()->role }}";
-        
-        function checkPermission(event, element) {
-            const requiredRole = element.getAttribute('data-requires-role');
-            
-            // Allow access if user has the required role
-            if (userRole === requiredRole || userRole === 'administrateur') {
-                return true;
-            }
-            
-            // Otherwise prevent navigation and show modal
-            event.preventDefault();
-            
-            // Get the nav text to display in the modal
-            const navText = element.querySelector('.nav-text').textContent;
-            
-            // Set custom message based on the section
-            let roleDisplay;
-            switch(requiredRole) {
-                case 'gestionnaire_produits':
-                    roleDisplay = 'le gestionnaire de produits';
-                    break;
-                case 'gestionnaire_commandes':
-                    roleDisplay = 'le gestionnaire de commandes';
-                    break;
-                case 'editeur_contenu':
-                    roleDisplay = 'l\'éditeur de contenu';
-                    break;
-                case 'administrateur':
-                    roleDisplay = 'l\'administrateur';
-                    break;
-                default:
-                    roleDisplay = requiredRole;
-            }
-            
-            document.getElementById('permissionMessage').textContent = 
-                `Seul ${roleDisplay} peut accéder à la section "${navText}".`;
-            
-            // Show the modal
-            document.getElementById('permissionDeniedModal').style.display = 'block';
-            return false;
-        }
-        
-        function closeModal() {
-            document.getElementById('permissionDeniedModal').style.display = 'none';
-        }
-        
-        // Close modal when clicking outside of it
-        window.onclick = function(event) {
-            const modal = document.getElementById('permissionDeniedModal');
-            if (event.target === modal) {
-                closeModal();
-            }
+        function toggleLogoutPopup() {
+            const popup = document.getElementById('logoutPopup');
+            popup.classList.toggle('hidden');
         }
     </script>
-    
     @stack('scripts')
 </body>
 </html>

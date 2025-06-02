@@ -2,29 +2,29 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\OrderResource\Pages;
 use App\Filament\Resources\OrderResource\RelationManagers;
-use App\Models\Order;
-use Filament\Forms;
-use Filament\Forms\Components\Card;
+use App\Filament\Resources\OrderResource\Pages;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Grid;
 use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Filament\Forms\Form;
+use App\Models\Order;
+use Filament\Tables;
+use Filament\Forms;
 
 class OrderResource extends Resource
 {
-    protected static ?string $model = Order::class;
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
     protected static ?string $navigationGroup = 'Ventes';
+    protected static ?string $model = Order::class;
     protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form

@@ -25,8 +25,7 @@ class BlogPost extends Model
         'published_at' => 'datetime',
     ];
 
-    public function tags(): BelongsToMany
-    {
+    public function tags(): BelongsToMany{
         return $this->belongsToMany(Tag::class);
     }
 }
