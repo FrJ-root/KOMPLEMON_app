@@ -2,10 +2,25 @@
 
 namespace App\Providers\Filament;
 
-use Filament\Panel;
 use Filament\Pages;
+use Filament\Panel;
 use Filament\Widgets;
 use Filament\PanelProvider;
+use Filament\Navigation\NavigationItem;
+use Filament\Navigation\NavigationGroup;
+use Illuminate\Support\Facades\Blade;
+use App\Filament\Resources\ProductResource;
+use App\Filament\Resources\CategoryResource;
+use App\Filament\Resources\MediaResource;
+use App\Filament\Resources\OrderResource;
+use App\Filament\Resources\CustomerResource;
+use App\Filament\Resources\UserResource;
+use App\Filament\Resources\CouponResource;
+use App\Filament\Resources\BlogPostResource;
+use App\Filament\Resources\TestimonialResource;
+use App\Filament\Pages\Dashboard;
+use App\Filament\Pages\Settings;
+use App\Filament\Pages\Statistics;
 use Filament\Support\Colors\Color;
 use Filament\Http\Middleware\Authenticate;
 use Illuminate\Session\Middleware\StartSession;
@@ -14,8 +29,8 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
 class AdminPanelProvider extends PanelProvider
@@ -27,37 +42,20 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->authGuard('web')
             ->colors([
-                'primary' => Color::Emerald,
+                'primary' => Color::Purple,
                 'danger' => Color::Rose,
-                'info' => Color::Blue,
+                'gray' => Color::Slate,
+                'info' => Color::Sky,
                 'success' => Color::Emerald,
-                'warning' => Color::Orange,
+                'warning' => Color::Amber,
             ])
-            ->font('Courier New')
-            ->darkMode()
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
-            ->pages([
-                Pages\Dashboard::class,
-            ])
+            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
-            ->widgets([
-                Widgets\AccountWidget::class,
-            ])
-            ->middleware([
-                EncryptCookies::class,
-                AddQueuedCookiesToResponse::class,
-                StartSession::class,
-                AuthenticateSession::class,
-                ShareErrorsFromSession::class,
-                VerifyCsrfToken::class,
-                SubstituteBindings::class,
-                DisableBladeIconComponents::class,
-                DispatchServingFilamentEvent::class,
-            ])
-            ->authMiddleware([
-                Authenticate::class,
-            ]);
+            ->brandName('KOMPLEMON Admin')
+            ->sidebarCollapsibleOnDesktop()
+            ->maxContentWidth('full')
+            ->viteTheme('resources/css/filament/admin/theme.css');
     }
 }

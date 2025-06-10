@@ -1,676 +1,293 @@
 @extends('admin.layouts.app')
 
 @section('content')
-<div class="container">
-    <div class="page-header">
-        <h1 class="page-title">Gestion des Utilisateurs</h1>
-        <div class="page-actions">
-            <a href="{{ route('users.create') }}" class="btn btn-create animated-btn">
-                <i class="icon-plus"></i> Nouvel Utilisateur
+<div class="container mx-auto">
+    <div class="bg-gradient-to-r from-gray-900 via-black to-gray-900 relative rounded-lg mb-6 p-6">
+        <div class="hex-pattern absolute inset-0 opacity-5 rounded-lg"></div>
+        <div class="flex items-center justify-between relative">
+            <h1 class="text-2xl font-bold text-white">Gestion des Utilisateurs</h1>
+            <a href="{{ route('users.create') }}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md flex items-center gap-2 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                <span>Nouvel Utilisateur</span>
             </a>
         </div>
     </div>
 
-    <div class="filter-bar">
-        <div class="filter-group" style="flex:1;">
-            <div class="search-box">
-                <i class="icon-search"></i>
-                <input type="text" id="searchInput" placeholder="Rechercher un utilisateur...">
-                <button type="button" class="clear-search" id="clearSearch">
-                    <i class="icon-times"></i>
+    <!-- Filter Bar -->
+    <div class="bg-gray-800 rounded-lg p-4 mb-6 border border-purple-500/10">
+        <div class="flex flex-col md:flex-row gap-4">
+            <div class="relative flex-1">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input type="text" id="searchInput" placeholder="Rechercher un utilisateur..." 
+                       class="w-full bg-gray-900 text-white pl-10 pr-4 py-2 rounded-md border border-gray-700 focus:border-purple-500 focus:outline-none">
+                <button type="button" id="clearSearch" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-300">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                 </button>
             </div>
-        </div>
-        <div class="filter-group" style="flex:1;">
-            <select id="roleOrSearchFilter" class="select-filter">
-                <option value="all">Tous les rôles</option>
-                <option value="gestionnaire_produits">Gestionnaire de produits</option>
-                <option value="gestionnaire_commandes">Gestionnaire de commandes</option>
-                <option value="editeur_contenu">Éditeur de contenu</option>
-            </select>
+            <div class="flex-1">
+                <select id="roleOrSearchFilter" class="w-full bg-gray-900 text-white px-4 py-2 rounded-md border border-gray-700 focus:border-purple-500 focus:outline-none appearance-none bg-no-repeat bg-right"
+                        style="background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"%23666\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 9l6 6 6-6\"/></svg>'); background-position: right 0.75rem center; background-size: 1rem;">
+                    <option value="all">Tous les rôles</option>
+                    <option value="gestionnaire_produits">Gestionnaire de produits</option>
+                    <option value="gestionnaire_commandes">Gestionnaire de commandes</option>
+                    <option value="editeur_contenu">Éditeur de contenu</option>
+                </select>
+            </div>
         </div>
     </div>
 
-    <div class="card">
-        <div class="table-responsive">
-            <table class="table users-table sortable">
+    <div class="bg-gray-800 rounded-lg p-6 border border-purple-500/10">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-700">
                 <thead>
                     <tr>
-                        <th class="sortable-header" data-sort="name">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer sortable-header" data-sort="name">
                             Nom
-                            <span class="sort-icon">
-                                <i class="icon-chevron-up"></i>
-                                <i class="icon-chevron-down"></i>
+                            <span class="inline-block ml-1 sort-icon">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                </svg>
                             </span>
                         </th>
-                        <th class="sortable-header" data-sort="email">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer sortable-header" data-sort="email">
                             Email
-                            <span class="sort-icon">
-                                <i class="icon-chevron-up"></i>
-                                <i class="icon-chevron-down"></i>
+                            <span class="inline-block ml-1 sort-icon">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                </svg>
                             </span>
                         </th>
-                        <th class="sortable-header" data-sort="role">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer sortable-header" data-sort="role">
                             Rôle
-                            <span class="sort-icon">
-                                <i class="icon-chevron-up"></i>
-                                <i class="icon-chevron-down"></i>
+                            <span class="inline-block ml-1 sort-icon">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                </svg>
                             </span>
                         </th>
-                        <th class="sortable-header" data-sort="date">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer sortable-header" data-sort="date">
                             Date d'inscription
-                            <span class="sort-icon">
-                                <i class="icon-chevron-up"></i>
-                                <i class="icon-chevron-down"></i>
+                            <span class="inline-block ml-1 sort-icon">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                </svg>
                             </span>
                         </th>
-                        <th>Actions</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-gray-700">
                     @forelse($users->where('role', '!=', 'administrateur') as $user)
-                    <tr data-role="{{ $user->role }}">
-                        <td>
-                            <div class="user-info-cell">
-                                <div class="user-avatar">{{ strtoupper(substr($user->name, 0, 2)) }}</div>
-                                <div class="user-name">{{ $user->name }}</div>
+                    <tr data-role="{{ $user->role }}" class="hover:bg-gray-700/50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 flex-shrink-0 mr-3 bg-purple-600/20 rounded-full flex items-center justify-center text-purple-400 text-sm font-medium">
+                                    {{ strtoupper(substr($user->name, 0, 2)) }}
+                                </div>
+                                <div class="text-sm font-medium text-white user-name">{{ $user->name }}</div>
                             </div>
                         </td>
-                        <td>{{ $user->email }}</td>
-                        <td>
-                            <span class="role-badge role-{{ $user->role }}">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{{ $user->email }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-medium rounded
+                                @if($user->role === 'administrateur') bg-purple-500/20 text-purple-400
+                                @elseif($user->role === 'gestionnaire_produits') bg-blue-500/20 text-blue-400
+                                @elseif($user->role === 'gestionnaire_commandes') bg-green-500/20 text-green-400
+                                @elseif($user->role === 'editeur_contenu') bg-yellow-500/20 text-yellow-400
+                                @endif">
                                 {{ ucfirst(str_replace('_', ' ', $user->role)) }}
                             </span>
                         </td>
-                        <td>{{ $user->created_at->format('d/m/Y') }}</td>
-                        <td>
-                            <div class="action-buttons">
-                                <button type="button" class="btn-action block-permissions" 
-                                        title="Bloquer des permissions" 
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{{ $user->created_at->format('d/m/Y') }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center gap-3">
+                                <a href="{{ route('users.edit', $user) }}" class="text-blue-400 hover:text-blue-300" title="Modifier">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </a>
+                                
+                                <button type="button" class="text-purple-400 hover:text-purple-300" title="Permissions" 
+                                        onclick="openPermissionsModal(this)"
                                         data-user-id="{{ $user->id }}" 
                                         data-user-name="{{ $user->name }}"
-                                        data-user-role="{{ $user->role }}"
-                                        onclick="openPermissionsModal(this)">
-                                    <i class="icon-lock"></i>
+                                        data-user-role="{{ $user->role }}">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                    </svg>
                                 </button>
+                                
+                                @if(auth()->id() !== $user->id)
+                                <form action="{{ route('users.destroy', $user) }}" method="POST" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-400 hover:text-red-300" title="Supprimer">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </form>
+                                @endif
                             </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="text-center py-4">Aucun utilisateur trouvé</td>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-400">Aucun utilisateur trouvé</td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        
-        <div class="card-footer">
-            {{ $users->links() }}
-        </div>
     </div>
 </div>
 
 <!-- Permissions Modal -->
-<div id="permissionsModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 class="modal-title">Gérer les permissions: <span id="modalUserName"></span></h2>
-            <span class="close" onclick="closePermissionsModal()">&times;</span>
+<div id="permissionsModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-50 backdrop-blur-sm">
+    <div class="bg-gray-800 rounded-lg p-6 border border-purple-500/20 w-full max-w-md">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold text-white">Gérer les permissions: <span id="modalUserName" class="text-purple-400"></span></h2>
+            <button onclick="closePermissionsModal()" class="text-gray-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
         </div>
-        <div class="modal-body">
-            <div id="rolePermissionsInfo" class="mb-4"></div>
+        
+        <div id="rolePermissionsInfo" class="mb-4"></div>
+        
+        <form id="blockPermissionsForm" action="{{ route('users.block-permissions') }}" method="POST">
+            @csrf
+            <input type="hidden" id="userId" name="user_id">
             
-            <form id="blockPermissionsForm" action="{{ route('users.block-permissions') }}" method="POST">
-                @csrf
-                <input type="hidden" id="userId" name="user_id">
-                
-                <div id="gestionnaire_produits_permissions" class="permission-group" style="display: none;">
-                    <h3 class="permission-group-title">Permissions du gestionnaire de produits</h3>
-                    <div class="permission-options">
-                        <div class="permission-option">
-                            <input type="checkbox" id="block_manage_products" name="blocked_permissions[]" value="manage_products">
-                            <label for="block_manage_products">Gérer les produits</label>
-                        </div>
-                        <div class="permission-option">
-                            <input type="checkbox" id="block_manage_categories" name="blocked_permissions[]" value="manage_categories">
-                            <label for="block_manage_categories">Gérer les catégories</label>
-                        </div>
-                        <div class="permission-option">
-                            <input type="checkbox" id="block_manage_media" name="blocked_permissions[]" value="manage_media">
-                            <label for="block_manage_media">Gérer les médias</label>
-                        </div>
+            <div id="gestionnaire_produits_permissions" class="permission-group hidden space-y-4 mb-4">
+                <h3 class="text-white font-medium">Permissions du gestionnaire de produits</h3>
+                <div class="space-y-2">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="block_manage_products" name="blocked_permissions[]" value="manage_products"
+                               class="w-4 h-4 text-purple-600 border-gray-700 rounded focus:ring-purple-500 focus:ring-offset-gray-800">
+                        <label for="block_manage_products" class="ml-2 text-gray-300">Gérer les produits</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="block_manage_categories" name="blocked_permissions[]" value="manage_categories"
+                               class="w-4 h-4 text-purple-600 border-gray-700 rounded focus:ring-purple-500 focus:ring-offset-gray-800">
+                        <label for="block_manage_categories" class="ml-2 text-gray-300">Gérer les catégories</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="block_manage_media" name="blocked_permissions[]" value="manage_media"
+                               class="w-4 h-4 text-purple-600 border-gray-700 rounded focus:ring-purple-500 focus:ring-offset-gray-800">
+                        <label for="block_manage_media" class="ml-2 text-gray-300">Gérer les médias</label>
                     </div>
                 </div>
-                
-                <div id="gestionnaire_commandes_permissions" class="permission-group" style="display: none;">
-                    <h3 class="permission-group-title">Permissions du gestionnaire de commandes</h3>
-                    <div class="permission-options">
-                        <div class="permission-option">
-                            <input type="checkbox" id="block_manage_orders" name="blocked_permissions[]" value="manage_orders">
-                            <label for="block_manage_orders">Gérer les commandes</label>
-                        </div>
-                        <div class="permission-option">
-                            <input type="checkbox" id="block_export_orders" name="blocked_permissions[]" value="export_orders">
-                            <label for="block_export_orders">Exporter les commandes</label>
-                        </div>
-                        <div class="permission-option">
-                            <input type="checkbox" id="block_manage_customers" name="blocked_permissions[]" value="manage_customers">
-                            <label for="block_manage_customers">Gérer les clients</label>
-                        </div>
+            </div>
+            
+            <div id="gestionnaire_commandes_permissions" class="permission-group hidden space-y-4 mb-4">
+                <h3 class="text-white font-medium">Permissions du gestionnaire de commandes</h3>
+                <div class="space-y-2">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="block_manage_orders" name="blocked_permissions[]" value="manage_orders"
+                               class="w-4 h-4 text-purple-600 border-gray-700 rounded focus:ring-purple-500 focus:ring-offset-gray-800">
+                        <label for="block_manage_orders" class="ml-2 text-gray-300">Gérer les commandes</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="block_export_orders" name="blocked_permissions[]" value="export_orders"
+                               class="w-4 h-4 text-purple-600 border-gray-700 rounded focus:ring-purple-500 focus:ring-offset-gray-800">
+                        <label for="block_export_orders" class="ml-2 text-gray-300">Exporter les commandes</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="block_manage_customers" name="blocked_permissions[]" value="manage_customers"
+                               class="w-4 h-4 text-purple-600 border-gray-700 rounded focus:ring-purple-500 focus:ring-offset-gray-800">
+                        <label for="block_manage_customers" class="ml-2 text-gray-300">Gérer les clients</label>
                     </div>
                 </div>
-                
-                <div id="editeur_contenu_permissions" class="permission-group" style="display: none;">
-                    <h3 class="permission-group-title">Permissions de l'éditeur de contenu</h3>
-                    <div class="permission-options">
-                        <div class="permission-option">
-                            <input type="checkbox" id="block_manage_articles" name="blocked_permissions[]" value="manage_articles">
-                            <label for="block_manage_articles">Gérer les articles</label>
-                        </div>
-                        <div class="permission-option">
-                            <input type="checkbox" id="block_manage_testimonials" name="blocked_permissions[]" value="manage_testimonials">
-                            <label for="block_manage_testimonials">Gérer les témoignages</label>
-                        </div>
+            </div>
+            
+            <div id="editeur_contenu_permissions" class="permission-group hidden space-y-4 mb-4">
+                <h3 class="text-white font-medium">Permissions de l'éditeur de contenu</h3>
+                <div class="space-y-2">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="block_manage_articles" name="blocked_permissions[]" value="manage_articles"
+                               class="w-4 h-4 text-purple-600 border-gray-700 rounded focus:ring-purple-500 focus:ring-offset-gray-800">
+                        <label for="block_manage_articles" class="ml-2 text-gray-300">Gérer les articles</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="block_manage_testimonials" name="blocked_permissions[]" value="manage_testimonials"
+                               class="w-4 h-4 text-purple-600 border-gray-700 rounded focus:ring-purple-500 focus:ring-offset-gray-800">
+                        <label for="block_manage_testimonials" class="ml-2 text-gray-300">Gérer les témoignages</label>
                     </div>
                 </div>
-                
-                <div class="form-group mt-4">
-                    <label for="block_reason" class="form-label">Raison du blocage (optionnel)</label>
-                    <textarea id="block_reason" name="block_reason" class="form-control" rows="3" placeholder="Indiquez pourquoi vous bloquez ces permissions..."></textarea>
-                </div>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="closePermissionsModal()">Annuler</button>
-            <button type="button" class="btn btn-primary" onclick="saveBlockedPermissions()">Enregistrer</button>
-        </div>
+            </div>
+            
+            <div class="mb-4">
+                <label for="block_reason" class="block text-gray-300 mb-2">Raison du blocage (optionnel)</label>
+                <textarea id="block_reason" name="block_reason" rows="3"
+                          class="w-full bg-gray-900 text-white px-4 py-2 rounded-md border border-gray-700 focus:border-purple-500 focus:outline-none"
+                          placeholder="Indiquez pourquoi vous bloquez ces permissions..."></textarea>
+            </div>
+            
+            <div class="flex justify-end gap-3">
+                <button type="button" onclick="closePermissionsModal()" class="px-4 py-2 bg-gray-700 text-gray-300 rounded hover:bg-gray-600 transition-colors">
+                    Annuler
+                </button>
+                <button type="button" onclick="saveBlockedPermissions()" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">
+                    Enregistrer
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
 <style>
-    /* Table styles */
-    .table-responsive {
-        overflow-x: auto;
-    }
-    
-    .users-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    
-    .users-table th {
-        background-color: #f8fafc;
-        color: #1e293b;
-        font-weight: 600;
-        text-align: left;
-        padding: 1rem;
-        border-bottom: 2px solid #e2e8f0;
-    }
-    
-    .users-table td {
-        padding: 1rem;
-        border-bottom: 1px solid #e2e8f0;
-        vertical-align: middle;
-    }
-    
-    .users-table tr:hover {
-        background-color: #f8fafc;
-    }
-    
-    /* User info cell */
-    .user-info-cell {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-    
-    .user-avatar {
-        width: 40px;
-        height: 40px;
-        background-color: #3b82f6;
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-        font-size: 0.875rem;
-    }
-    
-    .user-name {
-        font-weight: 500;
-    }
-    
-    /* Role badges */
-    .role-badge {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
-    
-    .role-administrateur {
-        background-color: #fecaca;
-        color: #b91c1c;
-    }
-    
-    .role-gestionnaire_produits {
-        background-color: #bae6fd;
-        color: #0369a1;
-    }
-    
-    .role-gestionnaire_commandes {
-        background-color: #fef3c7;
-        color: #92400e;
-    }
-    
-    .role-editeur_contenu {
-        background-color: #d1fae5;
-        color: #065f46;
-    }
-    
-    /* Action buttons */
-    .action-buttons {
-        display: flex;
-        gap: 0.5rem;
-    }
-    
-    .btn-action {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        border-radius: 0.375rem;
-        border: none;
-        cursor: pointer;
-        transition: all 0.2s;
-        background: none;
-    }
-    
-    .btn-action.edit {
-        color: #0369a1;
-    }
-    
-    .btn-action.edit:hover {
-        background-color: #bae6fd;
-    }
-    
-    .btn-action.delete {
-        color: #b91c1c;
-    }
-    
-    .btn-action.delete:hover {
-        background-color: #fecaca;
-    }
-    
-    /* Block permission button */
-    .btn-action.block-permissions {
-        color: white;
-        background-color: #6366f1;
-        width: 36px;
-        height: 36px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
-        position: relative;
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        overflow: hidden;
-    }
-    
-    .btn-action.block-permissions:before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
-        z-index: 0;
-    }
-    
-    .btn-action.block-permissions i {
-        position: relative;
-        z-index: 1;
-        font-size: 1rem;
-    }
-    
-    .btn-action.block-permissions:hover {
-        transform: translateY(-3px) scale(1.05);
-        background-color: #4f46e5;
-        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-    }
-    
-    .btn-action.block-permissions:after {
-        content: "Gérer permissions";
-        position: absolute;
-        top: -30px;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: #1e293b;
-        color: white;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 0.75rem;
-        white-space: nowrap;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.2s ease;
-        pointer-events: none;
-    }
-    
-    .btn-action.block-permissions:hover:after {
-        opacity: 1;
-        visibility: visible;
-        top: -35px;
-    }
-    
-    .btn-action.block-permissions:active {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 6px rgba(99, 102, 241, 0.2);
-    }
-    
-    /* Icons */
-    .icon-lock {
-        display: inline-block;
-        width: 16px;
-        height: 16px;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 1C8.676 1 6 3.676 6 7v2H4v14h16V9h-2V7c0-3.324-2.676-6-6-6zm0 2c2.276 0 4 1.724 4 4v2H8V7c0-2.276 1.724-4 4-4zm-6 8h12v10H6V11z'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: center;
-        background-size: contain;
-    }
-    
-    /* Make page header flex */
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid rgba(0,0,0,0.1);
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-    
-    .page-title {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: #1e293b;
-        margin: 0;
-    }
-    
-    .page-actions {
-        display: flex;
-        gap: 0.75rem;
-        align-items: center;
-    }
-    
-    /* Enhanced filter bar styles */
-    .filter-bar {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-        padding: 1.25rem;
-        background-color: white;
-        border-radius: 0.5rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        border: 1px solid rgba(0,0,0,0.05);
-    }
-    
-    .filter-group {
-        flex: 1;
-        min-width: 200px;
-    }
-    
-    /* Enhanced search box */
-    .search-box {
-        position: relative;
-        display: flex;
-        align-items: center;
-    }
-    
-    .search-box i.icon-search {
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #64748b;
-        font-size: 1rem;
-        pointer-events: none;
-    }
-    
-    .search-box input {
-        width: 100%;
-        padding: 0.75rem 2.5rem;
-        border: 1px solid #e2e8f0;
-        border-radius: 0.5rem;
-        font-size: 0.875rem;
-        transition: all 0.2s;
-        background-color: #f8fafc;
-    }
-    
-    .search-box input:focus {
-        border-color: #3b82f6;
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        background-color: white;
-    }
-    
-    .clear-search {
-        position: absolute;
-        right: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        color: #94a3b8;
-        cursor: pointer;
-        padding: 0;
-        display: none;
-        font-size: 0.875rem;
-    }
-    
-    .clear-search:hover {
-        color: #64748b;
-    }
-    
-    /* Enhanced select filter */
-    .select-filter {
-        width: 100%;
-        padding: 0.75rem 2.5rem 0.75rem 1rem;
-        border: 1px solid #e2e8f0;
-        border-radius: 0.5rem;
-        font-size: 0.875rem;
-        background-color: #f8fafc;
-        appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2364748b'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 1rem center;
-        background-size: 1.5rem;
-        transition: all 0.2s;
-    }
-    
-    .select-filter:focus {
-        border-color: #3b82f6;
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        background-color: white;
-    }
-    
-    /* Sortable table headers */
+    /* Sortable headers */
     .sortable-header {
-        cursor: pointer;
         position: relative;
+        cursor: pointer;
         user-select: none;
-        white-space: nowrap;
-        transition: background-color 0.2s;
+        transition: color 0.2s;
     }
     
     .sortable-header:hover {
-        background-color: #f1f5f9;
+        color: #a5b4fc;
     }
     
-    .sort-icon {
-        display: inline-flex;
-        flex-direction: column;
-        margin-left: 0.5rem;
-        font-size: 0.625rem;
-        color: #94a3b8;
-        position: relative;
-        top: 1px;
-        height: 10px;
-        width: 10px;
-        opacity: 0.5;
+    .sortable-header.sort-asc .sort-icon svg {
+        transform: rotate(0deg);
+        color: #a5b4fc;
     }
     
-    .sortable-header.sort-asc .icon-chevron-up,
-    .sortable-header.sort-desc .icon-chevron-down {
-        color: #3b82f6;
-        opacity: 1;
+    .sortable-header.sort-desc .sort-icon svg {
+        transform: rotate(180deg);
+        color: #a5b4fc;
     }
-    
-    .sortable-header.sort-active .sort-icon {
-        opacity: 1;
-    }
-    
-    /* Icons */
-    .icon-chevron-up:before { content: "▲"; }
-    .icon-chevron-down:before { content: "▼"; }
-    .icon-times:before { content: "×"; }
 </style>
 
+@push('scripts')
 <script>
     // Search and filter functionality
-    document.getElementById('searchInput').addEventListener('input', filterUsers);
-    document.getElementById('roleOrSearchFilter').addEventListener('change', filterUsers);
-
-    function filterUsers() {
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        const roleFilter = document.getElementById('roleOrSearchFilter').value;
-        
-        document.querySelectorAll('.users-table tbody tr').forEach(row => {
-            if (row.querySelector('td.text-center')) return; // Skip "no users found" row
-            
-            const name = row.querySelector('.user-name').textContent.toLowerCase();
-            const email = row.cells[1].textContent.toLowerCase();
-            const role = row.getAttribute('data-role');
-            
-            const matchesSearch = name.includes(searchTerm) || email.includes(searchTerm);
-            const matchesRole = roleFilter === 'all' || role === roleFilter;
-            
-            row.style.display = matchesSearch && matchesRole ? '' : 'none';
-        });
-    }
-
-    // Confirm delete
-    function confirmDelete(button) {
-        if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
-            button.closest('form').submit();
-        }
-    }
-
-    // Close alerts
-    document.querySelectorAll('.alert-close').forEach(button => {
-        button.addEventListener('click', () => {
-            button.closest('.alert').remove();
-        });
-    });
-    
-    // Permission modal functions
-    function openPermissionsModal(button) {
-        const userId = button.getAttribute('data-user-id');
-        const userName = button.getAttribute('data-user-name');
-        const userRole = button.getAttribute('data-user-role');
-        
-        document.getElementById('userId').value = userId;
-        document.getElementById('modalUserName').textContent = userName;
-        
-        // Reset form
-        document.getElementById('blockPermissionsForm').reset();
-        
-        // Hide all permission groups first
-        document.querySelectorAll('.permission-group').forEach(group => {
-            group.style.display = 'none';
-        });
-        
-        // Show appropriate permission group based on role
-        if (userRole === 'gestionnaire_produits') {
-            document.getElementById('gestionnaire_produits_permissions').style.display = 'block';
-            document.getElementById('rolePermissionsInfo').innerHTML = `
-                <div class="alert alert-info">
-                    <i class="icon-info-circle"></i>
-                    <div>
-                        <strong>Permissions du gestionnaire de produits</strong>
-                        <p>Par défaut, ce rôle peut gérer les produits, les catégories et les médias. Sélectionnez les permissions que vous souhaitez bloquer.</p>
-                    </div>
-                </div>
-            `;
-        } else if (userRole === 'gestionnaire_commandes') {
-            document.getElementById('gestionnaire_commandes_permissions').style.display = 'block';
-            document.getElementById('rolePermissionsInfo').innerHTML = `
-                <div class="alert alert-info">
-                    <i class="icon-info-circle"></i>
-                    <div>
-                        <strong>Permissions du gestionnaire de commandes</strong>
-                        <p>Par défaut, ce rôle peut gérer les commandes, les exporter et gérer les clients. Sélectionnez les permissions que vous souhaitez bloquer.</p>
-                    </div>
-                </div>
-            `;
-        } else if (userRole === 'editeur_contenu') {
-            document.getElementById('editeur_contenu_permissions').style.display = 'block';
-            document.getElementById('rolePermissionsInfo').innerHTML = `
-                <div class="alert alert-info">
-                    <i class="icon-info-circle"></i>
-                    <div>
-                        <strong>Permissions de l'éditeur de contenu</strong>
-                        <p>Par défaut, ce rôle peut gérer les articles et les témoignages. Sélectionnez les permissions que vous souhaitez bloquer.</p>
-                    </div>
-                </div>
-            `;
-        }
-        
-        // Show the modal
-        document.getElementById('permissionsModal').style.display = 'block';
-    }
-    
-    function closePermissionsModal() {
-        document.getElementById('permissionsModal').style.display = 'none';
-    }
-    
-    function saveBlockedPermissions() {
-        // In a real implementation, this would submit the form with AJAX
-        // For now, we'll just submit the form normally
-        document.getElementById('blockPermissionsForm').submit();
-    }
-    
-    // Close modal when clicking outside
-    window.onclick = function(event) {
-        const modal = document.getElementById('permissionsModal');
-        if (event.target === modal) {
-            closePermissionsModal();
-        }
-    }
-    
-    // Enhanced filtering and sorting
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('searchInput');
         const clearButton = document.getElementById('clearSearch');
-        const roleOrSearchFilter = document.getElementById('roleOrSearchFilter');
-        const tableRows = Array.from(document.querySelectorAll('.users-table tbody tr'));
+        const roleFilter = document.getElementById('roleOrSearchFilter');
+        const tableRows = document.querySelectorAll('tbody tr');
         const sortHeaders = document.querySelectorAll('.sortable-header');
         
         let currentSort = { column: null, direction: 'asc' };
         
-        // Unified filtering function
-        function filterTableRows() {
+        // Search and filter function
+        function filterTable() {
             const searchTerm = searchInput.value.toLowerCase();
-            const selectedRole = roleOrSearchFilter.value;
-
+            const selectedRole = roleFilter.value;
+            
             tableRows.forEach(row => {
-                if (row.querySelector('td.text-center')) return; // Skip "no users found" row
+                if (row.querySelector('td[colspan]')) return; // Skip "no results" row
                 
                 const name = row.querySelector('.user-name')?.textContent.toLowerCase() || '';
                 const email = row.cells[1]?.textContent.toLowerCase() || '';
@@ -682,78 +299,151 @@
                 row.style.display = matchesSearch && matchesRole ? '' : 'none';
             });
         }
-
-        searchInput.addEventListener('input', function() {
-            filterTableRows();
-            clearButton.style.display = searchInput.value.length > 0 ? 'block' : 'none';
-        });
-
+        
+        // Sort table function
+        function sortTable(column, direction) {
+            const tbody = document.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr:not([colspan])'));
+            
+            const sortedRows = rows.sort((a, b) => {
+                let valueA, valueB;
+                
+                if (column === 'name') {
+                    valueA = a.querySelector('.user-name')?.textContent || '';
+                    valueB = b.querySelector('.user-name')?.textContent || '';
+                } else if (column === 'email') {
+                    valueA = a.cells[1]?.textContent || '';
+                    valueB = b.cells[1]?.textContent || '';
+                } else if (column === 'role') {
+                    valueA = a.cells[2]?.textContent.trim() || '';
+                    valueB = b.cells[2]?.textContent.trim() || '';
+                } else if (column === 'date') {
+                    // Convert DD/MM/YYYY to sortable format
+                    const dateA = a.cells[3]?.textContent || '';
+                    const dateB = b.cells[3]?.textContent || '';
+                    valueA = dateA.split('/').reverse().join('');
+                    valueB = dateB.split('/').reverse().join('');
+                }
+                
+                return direction === 'asc' 
+                    ? valueA.localeCompare(valueB, undefined, { sensitivity: 'base' })
+                    : valueB.localeCompare(valueA, undefined, { sensitivity: 'base' });
+            });
+            
+            // Remove all rows
+            rows.forEach(row => row.remove());
+            
+            // Add sorted rows
+            sortedRows.forEach(row => tbody.appendChild(row));
+        }
+        
+        // Event listeners
+        searchInput.addEventListener('input', filterTable);
+        roleFilter.addEventListener('change', filterTable);
+        
         clearButton.addEventListener('click', function() {
             searchInput.value = '';
-            filterTableRows();
-            clearButton.style.display = 'none';
+            filterTable();
         });
-
-        roleOrSearchFilter.addEventListener('change', filterTableRows);
-
-        // Sorting functionality
+        
+        // Sort headers click event
         sortHeaders.forEach(header => {
             header.addEventListener('click', function() {
                 const column = this.getAttribute('data-sort');
                 const direction = currentSort.column === column && currentSort.direction === 'asc' ? 'desc' : 'asc';
                 
-                // Update active sort header styles
-                sortHeaders.forEach(h => h.classList.remove('sort-active', 'sort-asc', 'sort-desc'));
-                this.classList.add('sort-active', direction === 'asc' ? 'sort-asc' : 'sort-desc');
+                // Reset all headers
+                sortHeaders.forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
+                
+                // Update current header
+                this.classList.add(direction === 'asc' ? 'sort-asc' : 'sort-desc');
                 
                 // Update current sort state
                 currentSort = { column, direction };
                 
-                // Sort the table rows
+                // Sort the table
                 sortTable(column, direction);
             });
         });
+    });
+    
+    // Permissions modal
+    function openPermissionsModal(button) {
+        const userId = button.getAttribute('data-user-id');
+        const userName = button.getAttribute('data-user-name');
+        const userRole = button.getAttribute('data-user-role');
         
-        function sortTable(column, direction) {
-            const tbody = document.querySelector('.users-table tbody');
-            const rows = Array.from(tbody.querySelectorAll('tr:not([colspan])'));
-            
-            const sortedRows = rows.sort((a, b) => {
-                let aValue, bValue;
-                
-                if (column === 'name') {
-                    aValue = a.querySelector('.user-name')?.textContent || '';
-                    bValue = b.querySelector('.user-name')?.textContent || '';
-                } else if (column === 'email') {
-                    aValue = a.cells[1]?.textContent || '';
-                    bValue = b.cells[1]?.textContent || '';
-                } else if (column === 'role') {
-                    aValue = a.cells[2]?.textContent.trim() || '';
-                    bValue = b.cells[2]?.textContent.trim() || '';
-                } else if (column === 'date') {
-                    aValue = a.cells[3]?.textContent || '';
-                    bValue = b.cells[3]?.textContent || '';
-                    
-                    // Convert DD/MM/YYYY to sortable format
-                    aValue = aValue.split('/').reverse().join('');
-                    bValue = bValue.split('/').reverse().join('');
-                }
-                
-                // Direction modifier
-                const modifier = direction === 'asc' ? 1 : -1;
-                
-                // Case-insensitive comparison
-                return modifier * aValue.localeCompare(bValue, undefined, { sensitivity: 'base' });
-            });
-            
-            // Reorder the DOM
-            sortedRows.forEach(row => {
-                tbody.appendChild(row);
-            });
+        document.getElementById('userId').value = userId;
+        document.getElementById('modalUserName').textContent = userName;
+        
+        // Reset form
+        document.getElementById('blockPermissionsForm').reset();
+        
+        // Hide all permission groups
+        document.querySelectorAll('.permission-group').forEach(group => {
+            group.classList.add('hidden');
+        });
+        
+        // Show appropriate role permissions
+        if (userRole === 'gestionnaire_produits') {
+            document.getElementById('gestionnaire_produits_permissions').classList.remove('hidden');
+            document.getElementById('rolePermissionsInfo').innerHTML = `
+                <div class="bg-blue-900/20 border border-blue-500/30 text-blue-400 px-4 py-3 rounded-lg flex items-start">
+                    <svg class="w-5 h-5 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                        <p class="font-medium">Permissions du gestionnaire de produits</p>
+                        <p class="text-sm">Par défaut, ce rôle peut gérer les produits, les catégories et les médias. Sélectionnez les permissions que vous souhaitez bloquer.</p>
+                    </div>
+                </div>
+            `;
+        } else if (userRole === 'gestionnaire_commandes') {
+            document.getElementById('gestionnaire_commandes_permissions').classList.remove('hidden');
+            document.getElementById('rolePermissionsInfo').innerHTML = `
+                <div class="bg-green-900/20 border border-green-500/30 text-green-400 px-4 py-3 rounded-lg flex items-start">
+                    <svg class="w-5 h-5 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                        <p class="font-medium">Permissions du gestionnaire de commandes</p>
+                        <p class="text-sm">Par défaut, ce rôle peut gérer les commandes, les exporter et gérer les clients. Sélectionnez les permissions que vous souhaitez bloquer.</p>
+                    </div>
+                </div>
+            `;
+        } else if (userRole === 'editeur_contenu') {
+            document.getElementById('editeur_contenu_permissions').classList.remove('hidden');
+            document.getElementById('rolePermissionsInfo').innerHTML = `
+                <div class="bg-yellow-900/20 border border-yellow-500/30 text-yellow-400 px-4 py-3 rounded-lg flex items-start">
+                    <svg class="w-5 h-5 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                        <p class="font-medium">Permissions de l'éditeur de contenu</p>
+                        <p class="text-sm">Par défaut, ce rôle peut gérer les articles et les témoignages. Sélectionnez les permissions que vous souhaitez bloquer.</p>
+                    </div>
+                </div>
+            `;
         }
         
-        // Initialize the clear button state
-        clearButton.style.display = searchInput.value.length > 0 ? 'block' : 'none';
+        // Show modal
+        document.getElementById('permissionsModal').classList.remove('hidden');
+    }
+    
+    function closePermissionsModal() {
+        document.getElementById('permissionsModal').classList.add('hidden');
+    }
+    
+    function saveBlockedPermissions() {
+        document.getElementById('blockPermissionsForm').submit();
+    }
+    
+    // Close modal when clicking outside
+    document.getElementById('permissionsModal').addEventListener('click', function(event) {
+        if (event.target === this) {
+            closePermissionsModal();
+        }
     });
 </script>
+@endpush
 @endsection

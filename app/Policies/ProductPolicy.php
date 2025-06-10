@@ -12,26 +12,36 @@ class ProductPolicy
 
     public function viewAny(User $user): bool
     {
-        return in_array($user->role, ['administrateur', 'gestionnaire_produits']);
+        return $user->hasPermission('manage_products');
     }
 
     public function view(User $user, Product $product): bool
     {
-        return in_array($user->role, ['administrateur', 'gestionnaire_produits']);
+        return $user->hasPermission('manage_products');
     }
 
     public function create(User $user): bool
     {
-        return in_array($user->role, ['administrateur', 'gestionnaire_produits']);
+        return $user->hasPermission('manage_products');
     }
 
     public function update(User $user, Product $product): bool
     {
-        return in_array($user->role, ['administrateur', 'gestionnaire_produits']);
+        return $user->hasPermission('manage_products');
     }
 
     public function delete(User $user, Product $product): bool
     {
-        return $user->role === 'administrateur';
+        return $user->hasPermission('manage_products');
+    }
+
+    public function restore(User $user, Product $product): bool
+    {
+        return $user->hasPermission('manage_products');
+    }
+
+    public function forceDelete(User $user, Product $product): bool
+    {
+        return $user->hasPermission('manage_products');
     }
 }

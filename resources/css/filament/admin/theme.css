@@ -5,3 +5,78 @@
     --primary: 120 50% 50%;
     --primary-foreground: 0 0% 100%;
 }
+
+/* Custom styles to enhance Filament UI */
+.fi-card {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease-in-out;
+}
+
+.fi-card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.fi-btn {
+    transition: all 0.2s ease-in-out;
+}
+
+.fi-btn:hover {
+    transform: translateY(-1px);
+}
+
+.fi-header {
+    background: linear-gradient(135deg, var(--primary-600), var(--primary-800));
+    border-radius: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.fi-header h1 {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Product gallery styling */
+.product-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.product-gallery-item {
+    aspect-ratio: 1/1;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    position: relative;
+}
+
+.product-gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.product-gallery-item:hover img {
+    transform: scale(1.05);
+}
+
+/* Custom badge styles */
+.fi-badge.badge-stock-low {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: rgb(245, 158, 11);
+}
+
+/* Animation for notifications */
+.fi-notification {
+    animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}

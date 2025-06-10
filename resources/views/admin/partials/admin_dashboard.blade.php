@@ -72,19 +72,19 @@
     </div>
     
     <div class="quick-actions">
-        <a href="/admin/users/create" class="quick-action">
+        <a href="{{ route('users.create') }}" class="quick-action">
             <span class="quick-action-icon">👤</span>
             <span>Ajouter un utilisateur</span>
         </a>
-        <a href="/admin/coupons/create" class="quick-action">
+        <a href="{{ route('coupons.create') }}" class="quick-action">
             <span class="quick-action-icon">🎟️</span>
             <span>Créer un coupon</span>
         </a>
-        <a href="/admin/settings" class="quick-action">
+        <a href="{{ route('admin.settings.index') }}" class="quick-action">
             <span class="quick-action-icon">⚙️</span>
             <span>Paramètres du site</span>
         </a>
-        <a href="/admin/statistics" class="quick-action">
+        <a href="{{ route('admin.statistics.index') }}" class="quick-action">
             <span class="quick-action-icon">📊</span>
             <span>Voir les statistiques</span>
         </a>

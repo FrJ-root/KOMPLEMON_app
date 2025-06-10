@@ -196,7 +196,7 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-        App\Providers\SettingsServiceProvider::class, // Add this line
+        App\Providers\FilamentServiceProvider::class, // Add this line
 
     ],
 

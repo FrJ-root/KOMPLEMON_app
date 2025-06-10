@@ -100,63 +100,11 @@
             transform: scale(0.98);
         }
     </style>
+    <!-- Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     @stack('styles')
 </head>
 <body class="bg-gray-900">
-    @if(session('welcome_admin'))
-    <div id="welcomePopup" class="fixed inset-0 bg-black bg-opacity-90 flex justify-center items-center z-50">
-        <div class="welcome-popup-inner text-center">
-            <h2 class="text-3xl font-bold text-green-400 mb-4 typing-effect">Welcome {{ Auth::user()->name }}</h2>
-            <p class="text-green-300 text-lg mb-6 fade-in-effect">System Initializing...</p>
-            <p class="text-gray-500 text-sm fade-in-effect-delay">Access Granted. Enjoy your session.</p>
-        </div>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const welcomePopup = document.getElementById('welcomePopup');        
-                welcomePopup.style.display = 'flex';
-                setTimeout(() => {
-                    welcomePopup.classList.add('fade-out');
-                    setTimeout(() => {
-                        welcomePopup.remove();
-                    }, 1000);
-                }, 8000);
-            });
-        </script>
-        <style>
-            @keyframes typing {
-                from { width: 0; }
-                to { width: 100%; }
-            }
-            .typing-effect {
-                overflow: hidden;
-                white-space: nowrap;
-                margin: 0 auto;
-                letter-spacing: 0.15em;
-                animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
-            }
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-            .fade-in-effect {
-                opacity: 0;
-                animation: fadeIn 2s ease-in 3.5s forwards;
-            }
-            .fade-in-effect-delay {
-                opacity: 0;
-                animation: fadeIn 2s ease-in 5.5s forwards;
-            }
-            @keyframes fadeOut {
-                from { opacity: 1; }
-                to { opacity: 0; }
-            }
-            .fade-out {
-                animation: fadeOut 1s ease-in forwards;
-            }
-        </style>
-    </div>
-    @endif
-
     <div id="dashboard-content">
         <!-- Admin Portal Header -->
         <div class="admin-portal bg-gradient-to-r from-gray-900 via-black to-gray-900 relative">
@@ -209,6 +157,17 @@
                         </svg>
                         <span>Dashboard</span>
                     </a>
+
+                    <!-- Only show coupons link for administrators -->
+                    @if(auth()->user()->role === 'administrateur')
+                    <a href="{{ route('coupons.index') }}" class="flex items-center gap-3 text-gray-400 hover:text-gray-200 {{ request()->is('admin/coupons*') ? 'text-gray-200' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                        </svg>
+                        <span>Coupons</span>
+                    </a>
+                    @endif
 
                     <a href="{{ route('products.index') }}" class="flex items-center gap-3 text-gray-400 hover:text-gray-200 {{ request()->is('admin/products*') ? 'text-gray-200' : '' }}">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -306,6 +265,28 @@
             const popup = document.getElementById('logoutPopup');
             popup.classList.toggle('hidden');
         }
+
+        // Ensure the welcome modal is only shown once by using localStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            const welcomeModal = document.getElementById('welcomeModal');
+            if (welcomeModal) {
+                const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
+                
+                if (!hasSeenWelcome) {
+                    // Show the modal only if it hasn't been shown before
+                    welcomeModal.classList.remove('hidden');
+                    localStorage.setItem('hasSeenWelcome', 'true');
+                }
+                
+                // Close welcome modal when clicking close button
+                const closeWelcomeBtn = document.getElementById('closeWelcomeModal');
+                if (closeWelcomeBtn) {
+                    closeWelcomeBtn.addEventListener('click', function() {
+                        welcomeModal.classList.add('hidden');
+                    });
+                }
+            }
+        });
     </script>
     @stack('scripts')
 </body>

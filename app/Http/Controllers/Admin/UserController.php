@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
@@ -17,8 +17,7 @@ class UserController extends Controller
     
     public function index()
     {
-        // Exclude administrators from the query for better performance
-        $users = User::where('role', '!=', 'administrateur')->paginate(10);
+        $users = User::all();
         return view('admin.users.index', compact('users'));
     }
     
@@ -33,7 +32,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'role' => ['required', Rule::in(['administrateur', 'gestionnaire_produits', 'gestionnaire_commandes', 'editeur_contenu'])],
+            'role' => 'required|string|in:administrateur,gestionnaire_produits,gestionnaire_commandes,editeur_contenu',
         ]);
         
         $user = User::create([
@@ -47,6 +46,11 @@ class UserController extends Controller
             ->with('success', 'Utilisateur créé avec succès.');
     }
     
+    public function show(User $user)
+    {
+        return view('admin.users.show', compact('user'));
+    }
+    
     public function edit(User $user)
     {
         return view('admin.users.edit', compact('user'));
@@ -56,22 +60,31 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:8|confirmed',
-            'role' => ['required', Rule::in(['administrateur', 'gestionnaire_produits', 'gestionnaire_commandes', 'editeur_contenu'])],
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                Rule::unique('users')->ignore($user->id),
+            ],
+            'role' => 'required|string|in:administrateur,gestionnaire_produits,gestionnaire_commandes,editeur_contenu',
         ]);
         
-        $userData = [
+        $data = [
             'name' => $validated['name'],
             'email' => $validated['email'],
             'role' => $validated['role'],
         ];
         
-        if (!empty($validated['password'])) {
-            $userData['password'] = Hash::make($validated['password']);
+        // Only update password if provided
+        if ($request->filled('password')) {
+            $request->validate([
+                'password' => 'string|min:8|confirmed',
+            ]);
+            $data['password'] = Hash::make($request->password);
         }
         
-        $user->update($userData);
+        $user->update($data);
         
         return redirect()->route('users.index')
             ->with('success', 'Utilisateur mis à jour avec succès.');
@@ -80,7 +93,7 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         // Prevent self-deletion
-        if ($user->id === auth()->id()) {
+        if (auth()->id() === $user->id) {
             return redirect()->route('users.index')
                 ->with('error', 'Vous ne pouvez pas supprimer votre propre compte.');
         }
@@ -91,26 +104,20 @@ class UserController extends Controller
             ->with('success', 'Utilisateur supprimé avec succès.');
     }
     
-    /**
-     * Block specific permissions for a user
-     */
     public function blockPermissions(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'user_id' => 'required|exists:users,id',
-            'blocked_permissions' => 'nullable|array',
-            'blocked_permissions.*' => 'string',
-            'block_reason' => 'nullable|string|max:500',
+            'permissions' => 'array',
+            'reason' => 'nullable|string|max:255',
         ]);
         
-        $user = User::findOrFail($validated['user_id']);
-        
-        // Store blocked permissions in the user's record
-        $user->blocked_permissions = $validated['blocked_permissions'] ?? [];
-        $user->blocked_permissions_reason = $validated['block_reason'];
+        $user = User::findOrFail($request->user_id);
+        $user->blocked_permissions = $request->permissions ?? [];
+        $user->blocked_permissions_reason = $request->reason;
         $user->save();
         
-        return redirect()->route('users.index')
-            ->with('success', 'Les permissions ont été mises à jour avec succès.');
+        return redirect()->back()
+            ->with('success', 'Permissions bloquées mises à jour avec succès.');
     }
 }

@@ -21,13 +21,40 @@ class Order extends Model
         'historique',
     ];
 
+    protected $casts = [
+        'date_commande' => 'datetime',
+        'historique' => 'array',
+    ];
+
+    /**
+     * Get the client that owns the order
+     */
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class, 'client_id');
     }
 
+    /**
+     * Get the user that owns the order (alias for client)
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'client_id');
+    }
+
+    /**
+     * Get the order details for the order
+     */
     public function orderDetails(): HasMany
     {
         return $this->hasMany(OrderDetail::class, 'commande_id');
+    }
+
+    /**
+     * Get the order items for the order
+     */
+    public function items(): HasMany
+    {
+        return $this->hasMany(OrderItem::class, 'commande_id');
     }
 }

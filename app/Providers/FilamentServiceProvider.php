@@ -19,31 +19,34 @@ use App\Http\Controllers\Auth\LoginController;
 
 class FilamentServiceProvider extends ServiceProvider
 {
-    public function register()
+    /**
+     * Register services.
+     */
+    public function register(): void
     {
         //
     }
 
-    public function boot()
+    /**
+     * Bootstrap services.
+     */
+    public function boot(): void
     {
         Filament::serving(function () {
-            // Customize brand
+            // Register navigation groups
             Filament::registerNavigationGroups([
                 NavigationGroup::make()
-                    ->label('Catalogue')
-                    ->icon('heroicon-o-shopping-bag'),
-                NavigationGroup::make()
-                    ->label('Ventes')
-                    ->icon('heroicon-o-currency-euro'),
-                NavigationGroup::make()
-                    ->label('Marketing')
-                    ->icon('heroicon-o-megaphone'),
+                    ->label('E-commerce')
+                    ->icon('heroicon-o-shopping-cart'),
+                
                 NavigationGroup::make()
                     ->label('Content')
                     ->icon('heroicon-o-document-text'),
+                
                 NavigationGroup::make()
-                    ->label('Administration')
-                    ->icon('heroicon-o-cog'),
+                    ->label('Settings')
+                    ->icon('heroicon-o-cog')
+                    ->collapsed(),
             ]);
 
             // Customize logo and branding

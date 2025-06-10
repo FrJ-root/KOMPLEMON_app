@@ -36,6 +36,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     
     // Administrateur routes
     Route::middleware(['role:administrateur'])->group(function () {
+        // Add coupons resource routes
         Route::resource('coupons', CouponController::class);
         
         Route::get('/settings', [SettingController::class, 'index'])->name('admin.settings.index');
@@ -71,4 +72,13 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::resource('articles', ArticleController::class);
         Route::resource('testimonials', TestimonialController::class);
     });
+});
+
+// Admin Statistics routes
+Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+    Route::get('/statistics', [\App\Http\Controllers\Admin\StatisticsController::class, 'index'])->name('statistics.index');
+    
+    // Sales evolution routes
+    Route::get('/sales/evolution', [\App\Http\Controllers\Admin\SalesController::class, 'showSalesEvolution'])->name('sales.evolution');
+    Route::get('/sales/evolution/data', [\App\Http\Controllers\Admin\SalesController::class, 'getSalesEvolution'])->name('sales.evolution.data');
 });

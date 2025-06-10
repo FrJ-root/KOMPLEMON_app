@@ -2,26 +2,29 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use App\Models\Category;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\Card;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\RichEditor;
 use App\Filament\Resources\CategoryResource\Pages;
+use App\Models\Category;
+use Filament\Forms;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
+use Filament\Tables;
+use Illuminate\Database\Eloquent\Builder;
 
-class CategoryResource extends Resource{
+class CategoryResource extends Resource
+{
+    protected static ?string $model = Category::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-tag';
-    protected static ?string $navigationGroup = 'Catalogue';
-    protected static ?string $model = Category::class;
+    
+    protected static ?string $navigationGroup = 'Produits';
+    
     protected static ?int $navigationSort = 2;
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()->hasPermission('manage_categories');
+    }
 
     public static function form(Form $form): Form
     {
