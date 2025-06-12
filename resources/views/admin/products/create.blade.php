@@ -1,720 +1,361 @@
 @extends('admin.layouts.app')
 
 @section('content')
-<div class="container">
-    <div class="page-header">
-        <h1 class="page-title">Ajouter un Produit</h1>
-        <div class="page-actions">
-            <a href="{{ route('products.index') }}" class="btn btn-secondary">
-                <i class="icon-arrow-left"></i> Retour à la liste
+<div class="container mx-auto">
+    <div class="bg-gradient-to-r from-gray-900 via-black to-gray-900 relative rounded-lg mb-6 p-6">
+        <div class="hex-pattern absolute inset-0 opacity-5 rounded-lg"></div>
+        <div class="flex items-center justify-between relative">
+            <h1 class="text-2xl font-bold text-white">Ajouter un Produit</h1>
+            <a href="{{ route('products.index') }}" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md flex items-center gap-2 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span>Retour</span>
             </a>
         </div>
     </div>
 
-    @if(session('error'))
-    <div class="alert alert-danger">
-        <i class="icon-exclamation-circle"></i>
-        <span>{{ session('error') }}</span>
-        <button class="alert-close">&times;</button>
-    </div>
-    @endif
-
-    <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data" class="product-form">
-        @csrf
-        
-        <div class="form-layout">
-            <div class="form-main">
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">Informations Produit</h2>
+    <div class="bg-gray-800 rounded-lg p-6 border border-purple-500/10">
+        <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Main Information Column -->
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-gray-900/50 rounded-lg p-6">
+                        <h2 class="text-lg font-semibold text-white mb-4">Informations générales</h2>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label for="nom" class="block text-gray-300 mb-2">Nom du produit <span class="text-purple-500">*</span></label>
+                                <input type="text" id="nom" name="nom" 
+                                       class="w-full bg-gray-800 text-white px-4 py-2 rounded-md border border-gray-700 focus:border-purple-500 focus:outline-none @error('nom') border-red-500 @enderror" 
+                                       value="{{ old('nom') }}" required>
+                                @error('nom')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            
+                            <div>
+                                <label for="description" class="block text-gray-300 mb-2">Description <span class="text-purple-500">*</span></label>
+                                <textarea id="description" name="description" 
+                                          class="w-full bg-gray-800 text-white px-4 py-2 rounded-md border border-gray-700 focus:border-purple-500 focus:outline-none @error('description') border-red-500 @enderror" 
+                                          rows="5" required>{{ old('description') }}</textarea>
+                                @error('description')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="categorie_id" class="block text-gray-300 mb-2">Catégorie <span class="text-purple-500">*</span></label>
+                                    <select id="categorie_id" name="categorie_id" 
+                                            class="w-full bg-gray-800 text-white px-4 py-2 rounded-md border border-gray-700 focus:border-purple-500 focus:outline-none @error('categorie_id') border-red-500 @enderror" 
+                                            required>
+                                        <option value="">Sélectionner une catégorie</option>
+                                        @foreach($categories as $category)
+                                            <option value="{{ $category->id }}" {{ old('categorie_id') == $category->id ? 'selected' : '' }}>
+                                                {{ $category->nom }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('categorie_id')
+                                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                
+                                <div>
+                                    <label for="statut" class="block text-gray-300 mb-2">Statut <span class="text-purple-500">*</span></label>
+                                    <select id="statut" name="statut" 
+                                            class="w-full bg-gray-800 text-white px-4 py-2 rounded-md border border-gray-700 focus:border-purple-500 focus:outline-none @error('statut') border-red-500 @enderror" 
+                                            required>
+                                        <option value="brouillon" {{ old('statut') == 'brouillon' ? 'selected' : '' }}>Brouillon</option>
+                                        <option value="publié" {{ old('statut') == 'publié' ? 'selected' : '' }}>Publié</option>
+                                    </select>
+                                    @error('statut')
+                                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label for="nom">Nom du produit <span class="required">*</span></label>
-                            <input type="text" id="nom" name="nom" class="form-control @error('nom') is-invalid @enderror" value="{{ old('nom') }}" required>
-                            @error('nom')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                    
+                    <div class="bg-gray-900/50 rounded-lg p-6">
+                        <h2 class="text-lg font-semibold text-white mb-4">Images du produit</h2>
+                        
+                        <div class="mb-4">
+                            <label for="images" class="block text-gray-300 mb-2">Images (max 5)</label>
+                            <div class="border-2 border-dashed border-gray-700 rounded-lg p-6 text-center hover:border-purple-500 transition-colors">
+                                <input type="file" id="images" name="images[]" multiple accept="image/*" 
+                                       class="hidden" onchange="showPreview(this)">
+                                
+                                <label for="images" class="cursor-pointer block">
+                                    <div id="preview-container" class="flex flex-wrap gap-4 justify-center mb-4" style="display: none;"></div>
+                                    
+                                    <div id="upload-prompt" class="flex flex-col items-center">
+                                        <svg class="w-12 h-12 text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <span class="text-gray-400">Cliquez pour télécharger des images</span>
+                                        <span class="text-gray-500 text-sm mt-1">Formats acceptés: JPG, PNG, GIF</span>
+                                    </div>
+                                </label>
+                            </div>
+                            @error('images')
+                                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                            @enderror
+                            @error('images.*')
+                                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                             @enderror
                         </div>
+                    </div>
+                    
+                    <div class="bg-gray-900/50 rounded-lg p-6">
+                        <h2 class="text-lg font-semibold text-white mb-4">Variations de produit</h2>
                         
-                        <div class="form-group">
-                            <label for="description">Description <span class="required">*</span></label>
-                            <textarea id="description" name="description" class="form-control richtext @error('description') is-invalid @enderror" rows="10">{{ old('description') }}</textarea>
-                            @error('description')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                        <div id="variations-container" class="space-y-4">
+                            <div class="variation-item bg-gray-800 p-4 rounded-lg border border-gray-700">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-gray-300 mb-2">Taille/Format</label>
+                                        <input type="text" name="variations[0][size]" placeholder="ex: 100g, 250ml"
+                                               class="w-full bg-gray-900 text-white px-4 py-2 rounded-md border border-gray-700 focus:border-purple-500 focus:outline-none">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2">Saveur</label>
+                                        <input type="text" name="variations[0][flavor]" placeholder="ex: Fraise, Vanille"
+                                               class="w-full bg-gray-900 text-white px-4 py-2 rounded-md border border-gray-700 focus:border-purple-500 focus:outline-none">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2">Quantité en stock</label>
+                                        <input type="number" name="variations[0][stock_quantity]" min="0" placeholder="Quantité"
+                                               class="w-full bg-gray-900 text-white px-4 py-2 rounded-md border border-gray-700 focus:border-purple-500 focus:outline-none">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-center">
+                            <button type="button" id="add-variation" class="inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                                <span>Ajouter une variation</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-900/50 rounded-lg p-6">
+                        <h2 class="flex items-center text-lg font-semibold text-white mb-4">
+                            <span>Ingrédients et nutrition</span>
+                            <span class="ml-2 text-xs text-gray-400 font-normal">(optionnel)</span>
+                        </h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="ingredients" class="block text-gray-300 mb-2">Ingrédients</label>
+                                <textarea id="ingredients" name="ingredients" 
+                                          class="w-full bg-gray-800 text-white px-4 py-2 rounded-md border border-gray-700 focus:border-purple-500 focus:outline-none" 
+                                          rows="5">{{ old('ingredients') }}</textarea>
+                            </div>
+                            
+                            <div>
+                                <label for="valeurs_nutritionnelles" class="block text-gray-300 mb-2">Valeurs nutritionnelles</label>
+                                <textarea id="valeurs_nutritionnelles" name="valeurs_nutritionnelles" 
+                                          class="w-full bg-gray-800 text-white px-4 py-2 rounded-md border border-gray-700 focus:border-purple-500 focus:outline-none" 
+                                          rows="5">{{ old('valeurs_nutritionnelles') }}</textarea>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">Images du Produit</h2>
-                    </div>
-                    <div class="card-body">
-                        <div class="product-images-uploader">
-                            <div class="product-images-preview" id="imagesPreview">
-                                <div class="image-upload-placeholder">
-                                    <i class="icon-image"></i>
-                                    <span>Aucune image sélectionnée</span>
+                <!-- Sidebar Column -->
+                <div class="space-y-6">
+                    <div class="bg-gray-900/50 rounded-lg p-6">
+                        <h2 class="text-lg font-semibold text-white mb-4">Prix et stock</h2>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label for="prix" class="block text-gray-300 mb-2">Prix (€) <span class="text-purple-500">*</span></label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">€</span>
+                                    <input type="number" id="prix" name="prix" min="0" step="0.01" 
+                                           class="w-full bg-gray-800 text-white pl-8 pr-4 py-2 rounded-md border border-gray-700 focus:border-purple-500 focus:outline-none @error('prix') border-red-500 @enderror" 
+                                           value="{{ old('prix') }}" required>
+                                </div>
+                                @error('prix')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            
+                            <div>
+                                <label for="prix_promo" class="block text-gray-300 mb-2">Prix promotionnel (€)</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">€</span>
+                                    <input type="number" id="prix_promo" name="prix_promo" min="0" step="0.01" 
+                                           class="w-full bg-gray-800 text-white pl-8 pr-4 py-2 rounded-md border border-gray-700 focus:border-purple-500 focus:outline-none @error('prix_promo') border-red-500 @enderror" 
+                                           value="{{ old('prix_promo') }}">
+                                </div>
+                                @error('prix_promo')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                                <div class="text-gray-500 text-xs mt-1">Laissez vide si le produit n'est pas en promotion</div>
+                            </div>
+                            
+                            <div>
+                                <label for="stock" class="block text-gray-300 mb-2">Stock global <span class="text-purple-500">*</span></label>
+                                <input type="number" id="stock" name="stock" min="0" 
+                                       class="w-full bg-gray-800 text-white px-4 py-2 rounded-md border border-gray-700 focus:border-purple-500 focus:outline-none @error('stock') border-red-500 @enderror" 
+                                       value="{{ old('stock', 0) }}" required>
+                                @error('stock')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            
+                            <div class="flex items-center gap-3 pt-3">
+                                <div class="flex-1">
+                                    <label for="suivi_stock" class="block text-gray-300 mb-2">Suivi du stock</label>
+                                </div>
+                                <div>
+                                    <label class="inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="suivi_stock" name="suivi_stock" value="1" 
+                                              {{ old('suivi_stock', 1) ? 'checked' : '' }}
+                                              class="sr-only peer">
+                                        <div class="relative w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                                    </label>
                                 </div>
                             </div>
                             
-                            <div class="image-upload-controls">
-                                <label for="images" class="btn btn-outline">
-                                    <i class="icon-upload"></i> Télécharger des images
-                                </label>
-                                <input type="file" id="images" name="images[]" class="image-upload-input" multiple accept="image/*">
-                                <div class="form-text">Formats acceptés: JPG, PNG, GIF. Max 2MB par image.</div>
+                            <div class="flex items-center gap-3 pt-3">
+                                <div class="flex-1">
+                                    <label for="featured" class="block text-gray-300 mb-2">Mettre en avant</label>
+                                </div>
+                                <div>
+                                    <label class="inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="featured" name="featured" value="1" 
+                                              {{ old('featured') ? 'checked' : '' }}
+                                              class="sr-only peer">
+                                        <div class="relative w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                                    </label>
+                                </div>
                             </div>
                         </div>
-                        
-                        @error('images')
-                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                        @enderror
                     </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">Ingrédients et Valeurs Nutritionnelles</h2>
-                    </div>
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label for="ingredients">Ingrédients</label>
-                            <textarea id="ingredients" name="ingredients" class="form-control richtext @error('ingredients') is-invalid @enderror" rows="5">{{ old('ingredients') }}</textarea>
-                            @error('ingredients')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="valeurs_nutritionnelles">Valeurs Nutritionnelles</label>
-                            <textarea id="valeurs_nutritionnelles" name="valeurs_nutritionnelles" class="form-control richtext @error('valeurs_nutritionnelles') is-invalid @enderror" rows="5">{{ old('valeurs_nutritionnelles') }}</textarea>
-                            @error('valeurs_nutritionnelles')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                    
+                    <div class="bg-blue-900/20 border border-blue-500/30 text-blue-400 px-4 py-3 rounded-lg flex items-start">
+                        <svg class="w-5 h-5 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div>
+                            <p class="font-medium">Conseil</p>
+                            <p class="text-sm">Les produits avec le statut "Brouillon" ne seront pas visibles par les clients sur le site web.</p>
                         </div>
                     </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">Variations du Produit</h2>
-                    </div>
-                    <div class="card-body">
-                        <div id="variationsContainer">
-                            <!-- Variations will be added here -->
-                            <div class="variations-empty-state">
-                                <i class="icon-box"></i>
-                                <p>Aucune variation ajoutée</p>
-                                <p class="text-muted">Cliquez sur le bouton ci-dessous pour ajouter des variations</p>
-                            </div>
-                        </div>
-                        
-                        <div class="variation-actions">
-                            <button type="button" class="btn btn-outline" id="addVariationBtn">
-                                <i class="icon-plus"></i> Ajouter une variation
-                            </button>
-                        </div>
+                    
+                    <div class="sticky top-6">
+                        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-md flex items-center justify-center gap-2 transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>Créer le produit</span>
+                        </button>
                     </div>
                 </div>
             </div>
-            
-            <div class="form-sidebar">
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">Publication</h2>
-                    </div>
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label for="statut">Statut <span class="required">*</span></label>
-                            <select id="statut" name="statut" class="form-control @error('statut') is-invalid @enderror" required>
-                                <option value="publié" {{ old('statut') === 'publié' ? 'selected' : '' }}>Publié</option>
-                                <option value="brouillon" {{ old('statut') === 'brouillon' ? 'selected' : '' }}>Brouillon</option>
-                            </select>
-                            @error('statut')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="categorie_id">Catégorie <span class="required">*</span></label>
-                            <select id="categorie_id" name="categorie_id" class="form-control @error('categorie_id') is-invalid @enderror" required>
-                                <option value="">Sélectionner une catégorie</option>
-                                @foreach($categories as $category)
-                                    <option value="{{ $category->id }}" {{ old('categorie_id') == $category->id ? 'selected' : '' }}>
-                                        {{ $category->nom }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('categorie_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary btn-block">
-                                <i class="icon-save"></i> Enregistrer
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">Prix</h2>
-                    </div>
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label for="prix">Prix normal <span class="required">*</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text">€</span>
-                                <input type="number" id="prix" name="prix" class="form-control @error('prix') is-invalid @enderror" value="{{ old('prix') }}" step="0.01" min="0" required>
-                            </div>
-                            @error('prix')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="prix_promo">Prix promotionnel</label>
-                            <div class="input-group">
-                                <span class="input-group-text">€</span>
-                                <input type="number" id="prix_promo" name="prix_promo" class="form-control @error('prix_promo') is-invalid @enderror" value="{{ old('prix_promo') }}" step="0.01" min="0">
-                            </div>
-                            <div class="form-text">Laissez vide si le produit n'est pas en promotion</div>
-                            @error('prix_promo')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">Inventaire</h2>
-                    </div>
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label for="stock">Quantité en stock <span class="required">*</span></label>
-                            <input type="number" id="stock" name="stock" class="form-control @error('stock') is-invalid @enderror" value="{{ old('stock', 0) }}" min="0" required>
-                            @error('stock')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </form>
+        </form>
+    </div>
 </div>
 
-<!-- Variation Template -->
-<template id="variationTemplate">
-    <div class="variation-item" data-index="{index}">
-        <div class="variation-header">
-            <h3 class="variation-title">Variation #{index}</h3>
-            <button type="button" class="btn-remove-variation" onclick="removeVariation({index})">
-                <i class="icon-trash"></i>
-            </button>
-        </div>
-        <div class="variation-grid">
-            <div class="form-group">
-                <label for="variations[{index}][size]">Taille</label>
-                <input type="text" name="variations[{index}][size]" class="form-control" placeholder="ex: 250g, 500g, etc.">
-            </div>
-            <div class="form-group">
-                <label for="variations[{index}][flavor]">Saveur</label>
-                <input type="text" name="variations[{index}][flavor]" class="form-control" placeholder="ex: Vanille, Chocolat, etc.">
-            </div>
-            <div class="form-group">
-                <label for="variations[{index}][quantity]">Quantité</label>
-                <input type="text" name="variations[{index}][quantity]" class="form-control" placeholder="ex: 30 gélules, 60 comprimés, etc.">
-            </div>
-            <div class="form-group">
-                <label for="variations[{index}][price]">Prix spécifique</label>
-                <input type="number" name="variations[{index}][price]" class="form-control" step="0.01" min="0" placeholder="Laisser vide pour utiliser le prix par défaut">
-            </div>
-            <div class="form-group">
-                <label for="variations[{index}][stock_quantity]">Stock spécifique</label>
-                <input type="number" name="variations[{index}][stock_quantity]" class="form-control" min="0" placeholder="Laisser vide pour utiliser le stock par défaut">
-            </div>
-        </div>
-    </div>
-</template>
-
-<style>
-    /* Form layout */
-    .form-layout {
-        display: flex;
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-    
-    .form-main {
-        flex: 2;
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-    
-    .form-sidebar {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-    
-    /* Cards */
-    .card {
-        background-color: white;
-        border-radius: 0.5rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        overflow: hidden;
-    }
-    
-    .card-header {
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid #e2e8f0;
-        background-color: #f8fafc;
-    }
-    
-    .card-title {
-        margin: 0;
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: #1e293b;
-    }
-    
-    .card-body {
-        padding: 1.5rem;
-    }
-    
-    /* Form controls */
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-    
-    .form-group:last-child {
-        margin-bottom: 0;
-    }
-    
-    label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-        color: #334155;
-    }
-    
-    .form-control {
-        display: block;
-        width: 100%;
-        padding: 0.625rem 0.75rem;
-        font-size: 0.875rem;
-        line-height: 1.5;
-        color: #1e293b;
-        background-color: #fff;
-        background-clip: padding-box;
-        border: 1px solid #cbd5e1;
-        border-radius: 0.375rem;
-        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-    }
-    
-    .form-control:focus {
-        border-color: #3b82f6;
-        outline: 0;
-        box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
-    }
-    
-    .form-control.richtext {
-        height: auto;
-    }
-    
-    .form-text {
-        margin-top: 0.25rem;
-        font-size: 0.75rem;
-        color: #64748b;
-    }
-    
-    .is-invalid {
-        border-color: #ef4444;
-    }
-    
-    .invalid-feedback {
-        display: none;
-        width: 100%;
-        margin-top: 0.25rem;
-        font-size: 0.75rem;
-        color: #ef4444;
-    }
-    
-    .is-invalid + .invalid-feedback,
-    .invalid-feedback.d-block {
-        display: block;
-    }
-    
-    .required {
-        color: #ef4444;
-    }
-    
-    /* Input group */
-    .input-group {
-        display: flex;
-    }
-    
-    .input-group-text {
-        display: flex;
-        align-items: center;
-        padding: 0.375rem 0.75rem;
-        font-size: 0.875rem;
-        font-weight: 400;
-        line-height: 1.5;
-        color: #1e293b;
-        text-align: center;
-        white-space: nowrap;
-        background-color: #f1f5f9;
-        border: 1px solid #cbd5e1;
-        border-radius: 0.375rem 0 0 0.375rem;
-        border-right: 0;
-    }
-    
-    .input-group .form-control {
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
-        position: relative;
-        flex: 1 1 auto;
-        width: 1%;
-        margin-bottom: 0;
-    }
-    
-    /* Images uploader */
-    .product-images-uploader {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .product-images-preview {
-        min-height: 150px;
-        border: 2px dashed #cbd5e1;
-        border-radius: 0.5rem;
-        padding: 1rem;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-    
-    .image-upload-placeholder {
-        width: 100%;
-        height: 100%;
-        min-height: 100px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        color: #94a3b8;
-    }
-    
-    .image-upload-placeholder i {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    .preview-image-container {
-        position: relative;
-        width: 120px;
-        height: 120px;
-        border-radius: 0.375rem;
-        overflow: hidden;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    
-    .preview-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    
-    .remove-image {
-        position: absolute;
-        top: 0.25rem;
-        right: 0.25rem;
-        background-color: rgba(239, 68, 68, 0.8);
-        color: white;
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-size: 0.875rem;
-    }
-    
-    .image-upload-controls {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-    
-    .image-upload-input {
-        display: none;
-    }
-    
-    /* Variations */
-    .variations-empty-state {
-        text-align: center;
-        padding: 2rem;
-        color: #94a3b8;
-    }
-    
-    .variations-empty-state i {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-    }
-    
-    .variations-empty-state p {
-        margin: 0.25rem 0;
-    }
-    
-    .text-muted {
-        color: #64748b;
-        font-size: 0.875rem;
-    }
-    
-    .variation-item {
-        background-color: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 0.5rem;
-        padding: 1.25rem;
-        margin-bottom: 1.25rem;
-    }
-    
-    .variation-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-    }
-    
-    .variation-title {
-        font-size: 1.125rem;
-        font-weight: 600;
-        color: #334155;
-        margin: 0;
-    }
-    
-    .btn-remove-variation {
-        background: none;
-        border: none;
-        color: #ef4444;
-        cursor: pointer;
-        font-size: 1rem;
-    }
-    
-    .variation-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 1rem;
-    }
-    
-    .variation-actions {
-        margin-top: 1rem;
-        display: flex;
-        justify-content: center;
-    }
-    
-    /* Buttons */
-    .btn {
-        display: inline-block;
-        font-weight: 500;
-        text-align: center;
-        vertical-align: middle;
-        cursor: pointer;
-        padding: 0.625rem 1.25rem;
-        font-size: 0.875rem;
-        line-height: 1.5;
-        border-radius: 0.375rem;
-        transition: all 0.2s;
-    }
-    
-    .btn-primary {
-        color: white;
-        background-color: #3b82f6;
-        border: 1px solid #3b82f6;
-    }
-    
-    .btn-primary:hover {
-        background-color: #2563eb;
-        border-color: #2563eb;
-    }
-    
-    .btn-secondary {
-        color: #1e293b;
-        background-color: #f1f5f9;
-        border: 1px solid #e2e8f0;
-    }
-    
-    .btn-secondary:hover {
-        background-color: #e2e8f0;
-        border-color: #cbd5e1;
-    }
-    
-    .btn-outline {
-        color: #3b82f6;
-        background-color: transparent;
-        border: 1px solid #3b82f6;
-    }
-    
-    .btn-outline:hover {
-        color: white;
-        background-color: #3b82f6;
-    }
-    
-    .btn-block {
-        display: block;
-        width: 100%;
-    }
-    
-    /* Responsive */
-    @media (max-width: 992px) {
-        .form-layout {
-            flex-direction: column;
-        }
-    }
-</style>
-
+@push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Image upload preview
-        const imagesInput = document.getElementById('images');
-        const imagesPreview = document.getElementById('imagesPreview');
-        const maxFiles = 5;
-        let uploadedFiles = [];
+    // Image preview functionality
+    function showPreview(input) {
+        const previewContainer = document.getElementById('preview-container');
+        const uploadPrompt = document.getElementById('upload-prompt');
         
-        imagesInput.addEventListener('change', function() {
-            const files = Array.from(this.files);
-            
-            if (files.length > maxFiles) {
-                alert(`Vous ne pouvez télécharger que ${maxFiles} images maximum.`);
-                this.value = '';
-                return;
-            }
-            
-            uploadedFiles = files;
-            updateImagePreview();
-        });
+        previewContainer.innerHTML = '';
         
-        function updateImagePreview() {
-            imagesPreview.innerHTML = '';
+        if (input.files && input.files.length > 0) {
+            previewContainer.style.display = 'flex';
             
-            if (uploadedFiles.length === 0) {
-                imagesPreview.innerHTML = `
-                    <div class="image-upload-placeholder">
-                        <i class="icon-image"></i>
-                        <span>Aucune image sélectionnée</span>
-                    </div>
-                `;
-                return;
-            }
-            
-            uploadedFiles.forEach((file, index) => {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    const container = document.createElement('div');
-                    container.className = 'preview-image-container';
+            Array.from(input.files).forEach((file, index) => {
+                if (index < 5) { // Limit to 5 images
+                    const reader = new FileReader();
                     
-                    const img = document.createElement('img');
-                    img.className = 'preview-image';
-                    img.src = e.target.result;
-                    
-                    const removeBtn = document.createElement('div');
-                    removeBtn.className = 'remove-image';
-                    removeBtn.innerHTML = '×';
-                    removeBtn.addEventListener('click', function() {
-                        uploadedFiles.splice(index, 1);
-                        updateImagePreview();
+                    reader.onload = function(e) {
+                        const previewItem = document.createElement('div');
+                        previewItem.className = 'relative w-24 h-24 overflow-hidden rounded-lg bg-gray-800';
                         
-                        // Reset the file input to reflect the changes
-                        if (uploadedFiles.length === 0) {
-                            imagesInput.value = '';
-                        } else {
-                            // This is a workaround, we can't directly modify FileList
-                            // In a real app, you might need to use FormData instead
-                        }
-                    });
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'w-full h-full object-cover';
+                        previewItem.appendChild(img);
+                        
+                        previewContainer.appendChild(previewItem);
+                    }
                     
-                    container.appendChild(img);
-                    container.appendChild(removeBtn);
-                    imagesPreview.appendChild(container);
-                };
-                
-                reader.readAsDataURL(file);
-            });
-        }
-        
-        // Variations management
-        const variationsContainer = document.getElementById('variationsContainer');
-        const addVariationBtn = document.getElementById('addVariationBtn');
-        const variationTemplate = document.getElementById('variationTemplate').innerHTML;
-        let variationCount = 0;
-        
-        addVariationBtn.addEventListener('click', function() {
-            addVariation();
-        });
-        
-        function addVariation() {
-            // Remove empty state if it's the first variation
-            if (variationCount === 0) {
-                variationsContainer.innerHTML = '';
-            }
-            
-            // Add variation
-            const newVariation = variationTemplate.replace(/{index}/g, variationCount);
-            variationsContainer.insertAdjacentHTML('beforeend', newVariation);
-            
-            variationCount++;
-        }
-        
-        // Global function to remove variations
-        window.removeVariation = function(index) {
-            const variationToRemove = document.querySelector(`.variation-item[data-index="${index}"]`);
-            if (variationToRemove) {
-                variationToRemove.remove();
-                
-                // If no variations left, show empty state
-                if (variationsContainer.children.length === 0) {
-                    variationsContainer.innerHTML = `
-                        <div class="variations-empty-state">
-                            <i class="icon-box"></i>
-                            <p>Aucune variation ajoutée</p>
-                            <p class="text-muted">Cliquez sur le bouton ci-dessous pour ajouter des variations</p>
-                        </div>
-                    `;
-                    variationCount = 0;
+                    reader.readAsDataURL(file);
                 }
-            }
-        };
-        
-        // Initialize rich text editors if available
-        if (typeof tinyMCE !== 'undefined') {
-            tinymce.init({
-                selector: '.richtext',
-                height: 300,
-                menubar: false,
-                plugins: [
-                    'advlist autolink lists link image charmap print preview anchor',
-                    'searchreplace visualblocks code fullscreen',
-                    'insertdatetime media table paste code help wordcount'
-                ],
-                toolbar: 'undo redo | formatselect | ' +
-                'bold italic backcolor | alignleft aligncenter ' +
-                'alignright alignjustify | bullist numlist outdent indent | ' +
-                'removeformat | help',
             });
+            
+            uploadPrompt.innerHTML = `
+                <span class="text-gray-400 mt-2">Cliquez pour modifier la sélection</span>
+                <span class="text-gray-500 text-sm">${input.files.length} fichier(s) sélectionné(s)</span>
+            `;
+        } else {
+            previewContainer.style.display = 'none';
+            uploadPrompt.innerHTML = `
+                <svg class="w-12 h-12 text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <span class="text-gray-400">Cliquez pour télécharger des images</span>
+                <span class="text-gray-500 text-sm mt-1">Formats acceptés: JPG, PNG, GIF</span>
+            `;
         }
+    }
+    
+    // Product variations functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('variations-container');
+        const addButton = document.getElementById('add-variation');
+        let variationCount = 1;
+        
+        addButton.addEventListener('click', function() {
+            const newVariation = document.createElement('div');
+            newVariation.className = 'variation-item bg-gray-800 p-4 rounded-lg border border-gray-700 relative';
+            newVariation.innerHTML = `
+                <button type="button" class="absolute top-2 right-2 text-gray-500 hover:text-red-400" onclick="this.closest('.variation-item').remove()">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block text-gray-300 mb-2">Taille/Format</label>
+                        <input type="text" name="variations[${variationCount}][size]" placeholder="ex: 100g, 250ml"
+                               class="w-full bg-gray-900 text-white px-4 py-2 rounded-md border border-gray-700 focus:border-purple-500 focus:outline-none">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-300 mb-2">Saveur</label>
+                        <input type="text" name="variations[${variationCount}][flavor]" placeholder="ex: Fraise, Vanille"
+                               class="w-full bg-gray-900 text-white px-4 py-2 rounded-md border border-gray-700 focus:border-purple-500 focus:outline-none">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-300 mb-2">Quantité en stock</label>
+                        <input type="number" name="variations[${variationCount}][stock_quantity]" min="0" placeholder="Quantité"
+                               class="w-full bg-gray-900 text-white px-4 py-2 rounded-md border border-gray-700 focus:border-purple-500 focus:outline-none">
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(newVariation);
+            variationCount++;
+        });
     });
 </script>
+@endpush
 @endsection

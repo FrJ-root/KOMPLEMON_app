@@ -10,6 +10,7 @@ use App\Models\ProductVariation;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Schema;
 
 class ProductController extends Controller
 {
@@ -118,11 +119,25 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        $categories = Category::all();
-        $product->load('media');
-        $variations = ProductVariation::where('product_id', $product->id)->get();
+        // Eager load only what's needed
+        $product->load(['category']);
         
-        return view('admin.products.edit', compact('product', 'categories', 'variations'));
+        // Get categories without loading all their relationships
+        $categories = Category::select('id', 'nom')->get();
+        
+        // Simplified media loading
+        $productMedia = null;
+        try {
+            // Only attempt to load media if table exists and only load the most recent ones
+            if (Schema::hasTable('media')) {
+                $productMedia = $product->media()->latest()->take(5)->get();
+            }
+        } catch (\Exception $e) {
+            // Log the error but don't break the page
+            \Log::error('Error loading media: ' . $e->getMessage());
+        }
+        
+        return view('admin.products.edit', compact('product', 'categories', 'productMedia'));
     }
     
     /**
@@ -183,14 +198,17 @@ class ProductController extends Controller
                 foreach ($request->variations as $variationData) {
                     if (isset($variationData['id'])) {
                         // Update existing variation
-                        $variation = ProductVariation::find($variationData['id']);
-                        if ($variation && $variation->product_id == $product->id) {
+                        $variation = ProductVariation::where('id', $variationData['id'])
+                            ->where('product_id', $product->id)
+                            ->first();
+                            
+                        if ($variation) {
                             $variation->update([
                                 'size' => $variationData['size'] ?? null,
                                 'flavor' => $variationData['flavor'] ?? null,
                                 'quantity' => $variationData['quantity'] ?? null,
-                                'price' => $variationData['price'] ?? $product->prix,
-                                'stock_quantity' => $variationData['stock_quantity'] ?? $product->stock,
+                                'price' => isset($variationData['price']) ? (float)$variationData['price'] : $product->prix,
+                                'stock_quantity' => isset($variationData['stock_quantity']) ? (int)$variationData['stock_quantity'] : $product->stock,
                             ]);
                         }
                     } else {

@@ -24,6 +24,12 @@ class ProductResource extends Resource
     
     protected static ?string $recordTitleAttribute = 'nom';
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()->hasRole('administrateur') || 
+               auth()->user()->hasRole('gestionnaire_produits');
+    }
+    
     public static function form(Form $form): Form
     {
         return $form
@@ -61,7 +67,11 @@ class ProductResource extends Resource
                                             ->maxFiles(5)
                                             ->image()
                                             ->imageResizeMode('cover')
-                                            ->imageCropAspectRatio('16:9')
+                                            ->imageResizeTargetWidth('1200')
+                                            ->imageResizeTargetHeight('800')
+                                            ->enableDownload()
+                                            ->enableOpen()
+                                            ->required(fn ($livewire) => $livewire instanceof \Filament\Resources\Pages\CreateRecord)
                                     ])
                                     ->collapsible(),
                             ])
@@ -209,6 +219,7 @@ class ProductResource extends Resource
                 Tables\Actions\ViewAction::make()
                     ->iconButton(),
                 Tables\Actions\EditAction::make()
+                    ->icon('heroicon-o-pencil-square')  // Update the icon here
                     ->iconButton(),
                 Tables\Actions\DeleteAction::make()
                     ->iconButton(),

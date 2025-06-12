@@ -4,32 +4,27 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class CheckRole
 {
-    public function handle(Request $request, Closure $next, ...$roles)
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     */
+    public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (!Auth::check()) {
-            return redirect('login');
+        if (!$request->user() || !count($roles)) {
+            return redirect()->route('login');
         }
-        
-        $allowedRoles = [];
+
         foreach ($roles as $role) {
-            $allowedRoles = array_merge($allowedRoles, explode(',', $role));
+            if ($request->user()->hasRole($role)) {
+                return $next($request);
+            }
         }
-        
-        if (in_array(Auth::user()->role, $allowedRoles)) {
-            return $next($request);
-        }
-        
-        if ($request->ajax() || $request->wantsJson()) {
-            return response()->json([
-                'error' => 'Unauthorized. You do not have permission to access this section.',
-            ], 403);
-        }
-        
-        return redirect()->route('admin.dashboard')
-            ->with('error', 'Vous n\'avez pas les permissions nécessaires pour accéder à cette section.');
+
+        abort(403, 'Unauthorized action.');
     }
 }

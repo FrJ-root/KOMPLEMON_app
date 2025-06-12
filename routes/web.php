@@ -58,6 +58,12 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::resource('products', ProductController::class);
         Route::resource('categories', CategoryController::class);
         Route::resource('media', MediaController::class);
+        
+        // Add bulk destroy route for media
+        Route::delete('/media/bulk-destroy', [MediaController::class, 'bulkDestroy'])->name('media.bulk-destroy');
+        
+        // Add set as main image route
+        Route::post('/media/{medium}/set-as-main', [MediaController::class, 'setAsMainImage'])->name('media.set-as-main');
     });
     
     // Order Manager routes

@@ -17,13 +17,14 @@ class CategoryResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-tag';
     
-    protected static ?string $navigationGroup = 'Produits';
+    protected static ?string $navigationGroup = 'E-commerce';
     
     protected static ?int $navigationSort = 2;
 
     public static function canAccess(): bool
     {
-        return auth()->user()->hasPermission('manage_categories');
+        return auth()->user()->hasRole('administrateur') || 
+               auth()->user()->hasRole('gestionnaire_produits');
     }
 
     public static function form(Form $form): Form

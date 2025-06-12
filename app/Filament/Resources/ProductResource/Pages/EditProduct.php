@@ -26,12 +26,17 @@ class EditProduct extends EditRecord
                     $newProduct->nom = $product->nom . ' (copie)';
                     $newProduct->save();
                     
+                    // Copy media if needed
+                    foreach ($product->getMedia('product-images') as $media) {
+                        $media->copyTo($newProduct, 'product-images');
+                    }
+                    
                     Notification::make()
                         ->title('Produit dupliqué avec succès')
                         ->success()
                         ->send();
                     
-                    return redirect()->route('filament.admin.resources.products.edit', $newProduct->id);
+                    return redirect()->route('filament.admin.resources.products.edit', ['record' => $newProduct->id]);
                 }),
         ];
     }
@@ -39,5 +44,13 @@ class EditProduct extends EditRecord
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
+    }
+    
+    protected function afterSave(): void
+    {
+        Notification::make()
+            ->title('Produit mis à jour avec succès')
+            ->success()
+            ->send();
     }
 }

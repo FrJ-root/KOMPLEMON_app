@@ -15,15 +15,16 @@ class MediaResource extends Resource
 {
     protected static ?string $model = ProductMedia::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-photograph';
+    protected static ?string $navigationIcon = 'heroicon-o-photo';
     
-    protected static ?string $navigationGroup = 'Produits';
+    protected static ?string $navigationGroup = 'E-commerce';
     
     protected static ?int $navigationSort = 3;
 
     public static function canAccess(): bool
     {
-        return auth()->user()->hasPermission('manage_media');
+        return auth()->user()->hasRole('administrateur') || 
+               auth()->user()->hasRole('gestionnaire_produits');
     }
 
     public static function form(Form $form): Form

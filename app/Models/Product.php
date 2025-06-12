@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Product extends Model
+class Product extends Model implements HasMedia
 {
-    use HasFactory;
+    use HasFactory, InteractsWithMedia;
 
     protected $table = 'produits';
 
@@ -23,6 +25,11 @@ class Product extends Model
         'ingredients',
         'valeurs_nutritionnelles',
         'statut',
+        'featured',
+        'suivi_stock',
+        'seuil_alerte_stock',
+        'vues',
+        'image'
     ];
 
     public function category(): BelongsTo
@@ -30,7 +37,8 @@ class Product extends Model
         return $this->belongsTo(Category::class, 'categorie_id');
     }
 
-    public function media(): HasMany
+    // Rename this method to avoid conflict with Spatie's media() method
+    public function productMedia(): HasMany
     {
         return $this->hasMany(ProductMedia::class, 'produit_id');
     }
@@ -55,5 +63,11 @@ class Product extends Model
         }
 
         return 'in_stock';
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('product-images')
+            ->useDisk('public');
     }
 }

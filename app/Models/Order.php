@@ -23,7 +23,6 @@ class Order extends Model
 
     protected $casts = [
         'date_commande' => 'datetime',
-        'historique' => 'array',
     ];
 
     /**
@@ -32,14 +31,6 @@ class Order extends Model
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class, 'client_id');
-    }
-
-    /**
-     * Get the user that owns the order (alias for client)
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'client_id');
     }
 
     /**

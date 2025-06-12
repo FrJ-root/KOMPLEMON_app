@@ -13,6 +13,7 @@ use App\Filament\Resources\TestimonialResource;
 use App\Filament\Resources\UserResource;
 use Filament\Facades\Filament;
 use Filament\Navigation\NavigationGroup;
+use Filament\Navigation\NavigationItem;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
@@ -33,51 +34,76 @@ class FilamentServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Filament::serving(function () {
-            // Register navigation groups
+            $user = auth()->user();
+            
+            // For all roles - hide unnecessary resources
             Filament::registerNavigationGroups([
                 NavigationGroup::make()
                     ->label('E-commerce')
-                    ->icon('heroicon-o-shopping-cart'),
-                
+                    ->icon('heroicon-o-shopping-bag'),
                 NavigationGroup::make()
                     ->label('Content')
                     ->icon('heroicon-o-document-text'),
-                
                 NavigationGroup::make()
-                    ->label('Settings')
-                    ->icon('heroicon-o-cog')
-                    ->collapsed(),
+                    ->label('Administration')
+                    ->icon('heroicon-o-cog'),
             ]);
-
-            // Customize logo and branding
-            Filament::registerStyles([
-                asset('css/admin-theme.css'),
-            ]);
-
-            // Register resources based on user permissions
-            $user = auth()->user();
             
+            // Administrators see everything
             if ($user && $user->hasRole('administrateur')) {
-                // Admin has access to everything
-            } elseif ($user && $user->hasRole('gestionnaire_produits')) {
-                // Product manager has access to products and categories
-                Filament::registerResources([
-                    ProductResource::class,
-                    CategoryResource::class,
-                ]);
-            } elseif ($user && $user->hasRole('gestionnaire_commandes')) {
-                // Order manager has access to orders and customers
-                Filament::registerResources([
-                    OrderResource::class,
-                    CustomerResource::class,
-                ]);
-            } elseif ($user && $user->hasRole('editeur_contenu')) {
-                // Content editor has access to blog and testimonials
-                Filament::registerResources([
-                    BlogPostResource::class,
-                    TestimonialResource::class,
-                ]);
+                // No need to hide any resources for admins
+                return;
             }
+            
+            // Product Managers see only product-related resources
+            if ($user && $user->hasRole('gestionnaire_produits')) {
+                Filament::registerNavigationItems([
+                    NavigationItem::make('Dashboard')
+                        ->icon('heroicon-o-home')
+                        ->activeIcon('heroicon-s-home')
+                        ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.pages.dashboard'))
+                        ->sort(-2)
+                        ->url(route('filament.admin.pages.dashboard')),
+                ]);
+                
+                // Hide all navigation groups except E-commerce
+                $hiddenGroups = ['Content', 'Administration'];
+                foreach ($hiddenGroups as $group) {
+                    Filament::getNavigationGroups()->first(fn ($item) => $item->getLabel() === $group)?->hidden();
+                }
+                
+                // Hide resources not related to products, categories, and media
+                $allowedResources = [
+                    'App\\Filament\\Resources\\ProductResource',
+                    'App\\Filament\\Resources\\CategoryResource',
+                    'App\\Filament\\Resources\\MediaResource',
+                ];
+                
+                Filament::getNavigationItems()
+                    ->filter(function ($item) use ($allowedResources) {
+                        // Keep dashboard and explicitly allowed resources
+                        if ($item->getLabel() === 'Dashboard') {
+                            return true;
+                        }
+                        
+                        // Check if the item belongs to an allowed resource
+                        $activeItem = $item->getActiveItem();
+                        if ($activeItem) {
+                            $activeItemUrl = $activeItem->getUrl();
+                            foreach ($allowedResources as $resource) {
+                                if (strpos($activeItemUrl, strtolower(class_basename($resource))) !== false) {
+                                    return true;
+                                }
+                            }
+                        }
+                        
+                        return false;
+                    });
+            }
+            
+            // Order Manager logic would go here
+            
+            // Content Editor logic would go here
         });
 
         // Override Filament routes with custom controllers if needed

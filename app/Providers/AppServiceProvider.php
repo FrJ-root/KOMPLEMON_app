@@ -36,5 +36,24 @@ class AppServiceProvider extends ServiceProvider
         Filament::serving(function () {
             // Customize Filament here if needed
         });
+        
+        // Improve performance by limiting relation count queries
+        \Illuminate\Database\Eloquent\Builder::macro('withExists', function ($relations) {
+            foreach ($relations as $relation) {
+                $this->withExists($relation);
+            }
+            
+            return $this;
+        });
+        
+        // Add query timeouts to prevent long-running queries
+        if (!app()->runningInConsole()) {
+            \DB::connection()->setQueryGrammar(new class extends \Illuminate\Database\Query\Grammars\MySqlGrammar {
+                public function compileSelect(\Illuminate\Database\Query\Builder $query)
+                {
+                    return parent::compileSelect($query) . ' /*+ MAX_EXECUTION_TIME(3000) */';
+                }
+            });
+        }
     }
 }
