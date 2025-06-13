@@ -13,7 +13,7 @@ class ClientSeeder extends Seeder
         $faker = Faker::create('fr_FR');
         $clients = [];
         
-        for ($i = 0; $i < 50; $i++) {
+        for ($i = 0; $i < 10; $i++) {
             $clients[] = [
                 'nom' => $faker->name,
                 'adresse' => $faker->address,

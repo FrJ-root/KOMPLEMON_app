@@ -2,91 +2,110 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Models\User;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use App\Http\Controllers\Controller;
-use App\Providers\RouteServiceProvider;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
-    use AuthenticatesUsers;
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('guest')->except('logout');
+    }
 
     /**
-     * Where to redirect users after login.
+     * Show the application's login form.
      *
-     * @var string
+     * @return \Illuminate\View\View
      */
-    protected $redirectTo = '/admin/dashboard';
-
     public function showLoginForm()
     {
-        if (Auth::check()) {
-            return redirect('/admin');
-        }
-
         return view('login.login');
     }
 
+    /**
+     * Handle a login request to the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+            'email' => 'required|string|email',
+            'password' => 'required|string',
         ]);
 
-        $credentials = [
-            'email' => $request->email,
-            'password' => $request->password,
-        ];
-
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (Auth::attempt($request->only('email', 'password'), $request->filled('remember'))) {
             $request->session()->regenerate();
-
-            return redirect('/admin/dashboard');
+            
+            return $this->sendLoginResponse($request);
         }
 
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ])->withInput($request->only('email', 'remember'));
+        throw ValidationException::withMessages([
+            'email' => [trans('auth.failed')],
+        ]);
+    }
+    
+    /**
+     * Send the response after the user was authenticated.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    protected function sendLoginResponse(Request $request)
+    {
+        session()->flash('welcome', 'Bienvenue, ' . Auth::user()->name . '!');
+        
+        $intended = redirect()->intended()->getTargetUrl();
+        $defaultUrl = url('/admin/dashboard');
+        
+        if ($intended === $defaultUrl) {
+            return $this->redirectBasedOnRole();
+        }
+        
+        return redirect()->intended();
+    }
+    
+    /**
+     * Redirect the user based on their role.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    protected function redirectBasedOnRole()
+    {
+        $user = Auth::user();
+        
+        return match ($user->role) {
+            'administrateur' => redirect('/admin/dashboard'),
+            'gestionnaire_produits' => redirect('/admin/products'),
+            // Change to point to the Filament dashboard
+            'gestionnaire_commandes' => redirect('/admin/dashboard'),
+            'editeur_contenu' => redirect('/admin/articles'),
+            default => redirect('/admin/dashboard'),
+        };
     }
 
     /**
-     * The user has been authenticated.
+     * Log the user out of the application.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  mixed  $user
-     * @return mixed
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
-    protected function authenticated(Request $request, $user)
-    {
-        // Redirect based on user role
-        switch ($user->role) {
-            case 'administrateur':
-                return redirect()->intended('/admin/dashboard');
-
-            case 'gestionnaire_produits':
-                return redirect()->intended('/admin/products');
-
-            case 'gestionnaire_commandes':
-                return redirect()->intended('/admin/orders');
-
-            case 'editeur_contenu':
-                return redirect()->intended('/admin/articles');
-
-            default:
-                return redirect()->intended($this->redirectPath());
-        }
-    }
-
-    public function logout(Request $request)
-    {
+    public function logout(Request $request){
         Auth::logout();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login');
+        return redirect('/');
     }
 }

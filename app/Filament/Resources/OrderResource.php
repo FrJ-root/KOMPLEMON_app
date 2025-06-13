@@ -10,12 +10,15 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Tables\Actions\BulkAction;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\Auth;
-use Filament\Notifications\Notification;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Support\Carbon;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\BulkAction;
+use Illuminate\Database\Eloquent\Collection;
 use App\Exports\OrdersExport;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -27,54 +30,60 @@ class OrderResource extends Resource
     
     protected static ?string $navigationLabel = 'Commandes';
 
+    protected static ?string $modelLabel = 'Commande';
+
+    protected static ?string $pluralModelLabel = 'Commandes';
+
     protected static ?string $navigationGroup = 'Gestion des Commandes';
 
     protected static ?int $navigationSort = 1;
-
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::where('statut', 'en attente')->count();
-    }
-
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return static::getModel()::where('statut', 'en attente')->count() > 0 ? 'warning' : null;
-    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('client_id')
-                    ->relationship('client', 'nom')
-                    ->searchable()
-                    ->preload()
-                    ->required()
-                    ->label('Client'),
+                Forms\Components\Section::make('Informations de la commande')
+                    ->schema([
+                        Forms\Components\Select::make('client_id')
+                            ->relationship('client', 'nom')
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->label('Client'),
+                            
+                        Forms\Components\DateTimePicker::make('date_commande')
+                            ->required()
+                            ->label('Date de commande'),
+                            
+                        Forms\Components\Select::make('statut')
+                            ->options([
+                                'en attente' => 'En attente',
+                                'confirmé' => 'Confirmé',
+                                'expédié' => 'Expédié',
+                                'livré' => 'Livré',
+                                'annulé' => 'Annulé',
+                            ])
+                            ->default('en attente')
+                            ->required()
+                            ->label('Statut'),
+                            
+                        Forms\Components\TextInput::make('total')
+                            ->numeric()
+                            ->prefix('€')
+                            ->required()
+                            ->label('Total'),
+                    ])->columns(2),
                     
-                Forms\Components\Select::make('statut')
-                    ->options([
-                        'en attente' => 'En attente',
-                        'confirmé' => 'Confirmé',
-                        'expédié' => 'Expédié',
-                        'livré' => 'Livré',
-                        'annulé' => 'Annulé',
-                    ])
-                    ->default('en attente')
-                    ->required()
-                    ->label('Statut'),
+                Forms\Components\Section::make('Historique')
+                    ->schema([
+                        Forms\Components\Textarea::make('historique')
+                            ->rows(4)
+                            ->label('Historique')
+                            ->disabled()
+                            ->dehydrated(),
+                    ]),
                     
-                Forms\Components\TextInput::make('total')
-                    ->numeric()
-                    ->prefix('€')
-                    ->required()
-                    ->label('Total'),
-                    
-                Forms\Components\Textarea::make('historique')
-                    ->columnSpan(2)
-                    ->label('Historique'),
-                    
-                Forms\Components\Section::make('Détails de la commande')
+                Forms\Components\Section::make('Articles commandés')
                     ->schema([
                         Forms\Components\Repeater::make('items')
                             ->relationship()
@@ -85,25 +94,33 @@ class OrderResource extends Resource
                                     ->preload()
                                     ->required()
                                     ->label('Produit')
-                                    ->reactive()
-                                    ->afterStateUpdated(fn ($state, callable $set) => 
-                                        $set('prix_unitaire', \App\Models\Product::find($state)?->prix ?? 0)),
+                                    ->columnSpan(4),
                                     
                                 Forms\Components\TextInput::make('quantite')
                                     ->numeric()
-                                    ->default(1)
                                     ->required()
-                                    ->label('Quantité'),
+                                    ->minValue(1)
+                                    ->label('Quantité')
+                                    ->columnSpan(1),
                                     
                                 Forms\Components\TextInput::make('prix_unitaire')
                                     ->numeric()
                                     ->prefix('€')
                                     ->required()
-                                    ->label('Prix unitaire'),
+                                    ->label('Prix unitaire')
+                                    ->columnSpan(1),
                             ])
-                            ->columns(3)
-                    ])
-                    ->collapsible()
+                            ->columns(6)
+                            ->itemLabel(fn (array $state): ?string => $state['produit_id'] ? 
+                                \App\Models\Product::find($state['produit_id'])->nom . ' (x' . ($state['quantite'] ?? 1) . ')' : null)
+                            ->addActionLabel('Ajouter un article')
+                            ->reorderableWithButtons()
+                            ->collapsible()
+                            ->collapseAllAction(
+                                fn (Forms\Components\Actions\Action $action) => $action->label('Réduire tous les articles')
+                            )
+                            ->label('Articles'),
+                    ]),
             ]);
     }
 
@@ -112,18 +129,28 @@ class OrderResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('id')
+                    ->label('Commande #')
                     ->sortable()
-                    ->label('ID'),
-                    
-                Tables\Columns\TextColumn::make('client.nom')
-                    ->searchable()
-                    ->sortable()
-                    ->label('Client'),
+                    ->searchable(),
                     
                 Tables\Columns\TextColumn::make('date_commande')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->label('Date'),
+                    
+                Tables\Columns\TextColumn::make('client.nom')
+                    ->searchable()
+                    ->label('Client'),
+                    
+                Tables\Columns\TextColumn::make('client.email')
+                    ->searchable()
+                    ->label('Email')
+                    ->toggleable(),
+                    
+                Tables\Columns\TextColumn::make('client.telephone')
+                    ->searchable()
+                    ->label('Téléphone')
+                    ->toggleable(isToggledHiddenByDefault: true),
                     
                 Tables\Columns\TextColumn::make('total')
                     ->money('EUR')
@@ -140,11 +167,10 @@ class OrderResource extends Resource
                     ])
                     ->label('Statut'),
                     
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime('d/m/Y')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label('Créé le'),
+                Tables\Columns\TextColumn::make('items_count')
+                    ->counts('items')
+                    ->label('Articles')
+                    ->toggleable(),
             ])
             ->filters([
                 SelectFilter::make('statut')
@@ -157,30 +183,35 @@ class OrderResource extends Resource
                     ])
                     ->label('Statut'),
                     
-                Tables\Filters\DateRangeFilter::make('date_commande')
+                Filter::make('date_debut')
+                    ->form([
+                        Forms\Components\DatePicker::make('date_debut')
+                            ->label('Date de début'),
+                        Forms\Components\DatePicker::make('date_fin')
+                            ->label('Date de fin'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['date_debut'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('date_commande', '>=', $date),
+                            )
+                            ->when(
+                                $data['date_fin'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('date_commande', '<=', $date),
+                            );
+                    })
                     ->label('Période'),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
-                    ->before(function (Tables\Actions\DeleteAction $action) {
-                        if (!Auth::user()->hasPermission('manage_orders')) {
-                            Notification::make()
-                                ->title('Permission refusée')
-                                ->body('Vous n\'avez pas la permission de supprimer des commandes.')
-                                ->danger()
-                                ->send();
-                                
-                            $action->cancel();
-                        }
-                    }),
-                Tables\Actions\Action::make('change_status')
-                    ->label('Changer le statut')
-                    ->icon('heroicon-o-arrow-path')
-                    ->color('success')
+                Action::make('changeStatus')
+                    ->label('Changer statut')
+                    ->icon('heroicon-o-tag')
                     ->form([
-                        Forms\Components\Select::make('statut')
+                        Forms\Components\Select::make('new_status')
+                            ->label('Nouveau statut')
                             ->options([
                                 'en attente' => 'En attente',
                                 'confirmé' => 'Confirmé',
@@ -188,54 +219,32 @@ class OrderResource extends Resource
                                 'livré' => 'Livré',
                                 'annulé' => 'Annulé',
                             ])
-                            ->required()
-                            ->label('Nouveau statut'),
+                            ->required(),
                     ])
                     ->action(function (Order $record, array $data): void {
-                        $oldStatus = $record->statut;
-                        $record->statut = $data['statut'];
-                        
-                        // Add to history
-                        $history = $record->historique ?? '';
-                        $history .= date('Y-m-d H:i:s') . " - Statut changé de '{$oldStatus}' à '{$data['statut']}' par " . Auth::user()->name . "\n";
-                        $record->historique = $history;
-                        
-                        $record->save();
-                        
-                        Notification::make()
-                            ->title('Statut mis à jour')
-                            ->success()
-                            ->send();
-                    }),
+                        $record->updateStatus($data['new_status'], auth()->user()->name);
+                    })
+                    ->color('warning')
+                    ->modalHeading('Changer le statut de la commande')
+                    ->modalDescription('Cette action sera enregistrée dans l\'historique de la commande.')
+                    ->modalSubmitActionLabel('Confirmer'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
-                        ->before(function (Tables\Actions\DeleteBulkAction $action) {
-                            if (!Auth::user()->hasPermission('manage_orders')) {
-                                Notification::make()
-                                    ->title('Permission refusée')
-                                    ->body('Vous n\'avez pas la permission de supprimer des commandes.')
-                                    ->danger()
-                                    ->send();
-                                    
-                                $action->cancel();
-                            }
-                        }),
-                    BulkAction::make('export')
+                    Tables\Actions\DeleteBulkAction::make(),
+                    BulkAction::make('exportOrders')
                         ->label('Exporter')
-                        ->icon('heroicon-o-arrow-down-tray')
-                        ->action(function ($records) {
-                            return Excel::download(new OrdersExport($records), 'commandes.xlsx');
+                        ->icon('heroicon-o-document-arrow-down')
+                        ->action(function (Collection $records) {
+                            return Excel::download(new OrdersExport($records), 'commandes_' . now()->format('Y-m-d') . '.xlsx');
                         })
-                        ->deselectRecordsAfterCompletion()
-                        ->requiresConfirmation()
-                        ->color('success'),
-                    BulkAction::make('update_status')
-                        ->label('Mettre à jour le statut')
-                        ->icon('heroicon-o-arrow-path')
+                        ->deselectRecordsAfterCompletion(),
+                    BulkAction::make('changeStatusBulk')
+                        ->label('Changer statut')
+                        ->icon('heroicon-o-tag')
                         ->form([
-                            Forms\Components\Select::make('statut')
+                            Forms\Components\Select::make('new_status')
+                                ->label('Nouveau statut')
                                 ->options([
                                     'en attente' => 'En attente',
                                     'confirmé' => 'Confirmé',
@@ -243,40 +252,115 @@ class OrderResource extends Resource
                                     'livré' => 'Livré',
                                     'annulé' => 'Annulé',
                                 ])
-                                ->required()
-                                ->label('Nouveau statut'),
+                                ->required(),
                         ])
-                        ->action(function ($records, array $data) {
-                            $count = 0;
+                        ->action(function (Collection $records, array $data): void {
                             foreach ($records as $record) {
-                                $oldStatus = $record->statut;
-                                $record->statut = $data['statut'];
-                                
-                                // Add to history
-                                $history = $record->historique ?? '';
-                                $history .= date('Y-m-d H:i:s') . " - Statut changé de '{$oldStatus}' à '{$data['statut']}' par " . Auth::user()->name . "\n";
-                                $record->historique = $history;
-                                
-                                $record->save();
-                                $count++;
+                                $record->updateStatus($data['new_status'], auth()->user()->name);
                             }
-                            
-                            Notification::make()
-                                ->title("{$count} commandes mises à jour")
-                                ->success()
-                                ->send();
                         }),
                 ]),
             ]);
     }
     
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Infolists\Components\Section::make('Informations de la commande')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('id')
+                            ->label('Commande #'),
+                            
+                        Infolists\Components\TextEntry::make('date_commande')
+                            ->dateTime('d/m/Y H:i')
+                            ->label('Date de commande'),
+                            
+                        Infolists\Components\TextEntry::make('statut')
+                            ->badge()
+                            ->color(fn (string $state): string => match ($state) {
+                                'en attente' => 'warning',
+                                'confirmé' => 'primary',
+                                'expédié' => 'info',
+                                'livré' => 'success',
+                                'annulé' => 'danger',
+                                default => 'gray',
+                            })
+                            ->label('Statut'),
+                            
+                        Infolists\Components\TextEntry::make('total')
+                            ->money('EUR')
+                            ->label('Total'),
+                    ])
+                    ->columns(2),
+                    
+                Infolists\Components\Section::make('Informations client')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('client.nom')
+                            ->label('Nom'),
+                            
+                        Infolists\Components\TextEntry::make('client.email')
+                            ->label('Email'),
+                            
+                        Infolists\Components\TextEntry::make('client.telephone')
+                            ->label('Téléphone'),
+                            
+                        Infolists\Components\TextEntry::make('client.adresse')
+                            ->label('Adresse')
+                            ->columnSpan(2),
+                    ])
+                    ->columns(2),
+                    
+                Infolists\Components\Section::make('Articles commandés')
+                    ->schema([
+                        Infolists\Components\RepeatableEntry::make('items')
+                            ->schema([
+                                Infolists\Components\TextEntry::make('product.nom')
+                                    ->label('Produit')
+                                    ->columnSpan(2),
+                                    
+                                Infolists\Components\TextEntry::make('quantite')
+                                    ->label('Quantité'),
+                                    
+                                Infolists\Components\TextEntry::make('prix_unitaire')
+                                    ->money('EUR')
+                                    ->label('Prix unitaire'),
+                                    
+                                Infolists\Components\TextEntry::make('total')
+                                    ->state(fn ($record): float => $record->quantite * $record->prix_unitaire)
+                                    ->money('EUR')
+                                    ->label('Total'),
+                            ])
+                            ->columns(5),
+                    ]),
+                    
+                Infolists\Components\Section::make('Historique des statuts')
+                    ->schema([
+                        Infolists\Components\RepeatableEntry::make('history')
+                            ->label('')
+                            ->schema([
+                                Infolists\Components\TextEntry::make('entry')
+                                    ->label('')
+                                    ->columnSpan(1),
+                            ])
+                            ->grid(1)
+                            ->state(function (Order $record): array {
+                                $entries = $record->getHistoryEntries();
+                                return array_map(function ($entry) {
+                                    return ['entry' => $entry];
+                                }, $entries);
+                            }),
+                    ]),
+            ]);
+    }
+
     public static function getRelations(): array
     {
         return [
-            RelationManagers\OrderItemsRelationManager::class,
+            //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -287,8 +371,20 @@ class OrderResource extends Resource
         ];
     }
     
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where('statut', 'en attente')->count() ?: null;
+    }
+    
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
+    }
+    
     public static function canAccess(): bool
     {
-        return auth()->user()->hasPermission('manage_orders');
+        return auth()->user()->role === 'administrateur' || 
+               auth()->user()->role === 'gestionnaire_commandes' ||
+               auth()->user()->hasPermission('manage_orders');
     }
 }

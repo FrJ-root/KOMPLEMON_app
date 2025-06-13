@@ -30,6 +30,14 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Indigo,
             ])
+            // Add this to set a custom home page for different roles
+            ->homeUrl(function () {
+                if (auth()->user()->role === 'gestionnaire_commandes') {
+                    return '/admin/dashboard';
+                }
+                
+                return '/admin/dashboard';
+            })
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
@@ -37,6 +45,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
+                \App\Filament\Widgets\OrdersOverview::class,
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
             ])
@@ -54,20 +63,9 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            ->sidebarCollapsibleOnDesktop()
-            ->navigationGroups([
-                NavigationGroup::make()
-                    ->label('E-commerce')
-                    ->icon('heroicon-o-shopping-bag')
-                    ->collapsed(),
-                NavigationGroup::make()
-                    ->label('Content')
-                    ->icon('heroicon-o-document-text')
-                    ->collapsed(),
-                NavigationGroup::make()
-                    ->label('Administration')
-                    ->icon('heroicon-o-cog')
-                    ->collapsed(),
-            ]);
+            // Add this to customize the default login page path
+            ->login()
+            // Make sure Filament uses your regular auth system
+            ->authGuard('web');
     }
 }

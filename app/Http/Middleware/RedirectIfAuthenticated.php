@@ -32,7 +32,8 @@ class RedirectIfAuthenticated
                         return redirect('/admin/products');
                         
                     case 'gestionnaire_commandes':
-                        return redirect('/admin/orders');
+                        // Update to use the correct dashboard path
+                        return redirect('/admin/dashboard');
                         
                     case 'editeur_contenu':
                         return redirect('/admin/articles');

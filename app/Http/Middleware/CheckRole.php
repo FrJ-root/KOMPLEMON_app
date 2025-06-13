@@ -15,16 +15,33 @@ class CheckRole
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (!$request->user() || !count($roles)) {
+        if (!auth()->check()) {
             return redirect()->route('login');
         }
-
-        foreach ($roles as $role) {
-            if ($request->user()->hasRole($role)) {
-                return $next($request);
-            }
+        
+        $user = auth()->user();
+        
+        // Allow administrators to access everything
+        if ($user->role === 'administrateur') {
+            return $next($request);
         }
-
+        
+        // Check if user has one of the allowed roles
+        if (in_array($user->role, $roles)) {
+            return $next($request);
+        }
+        
+        // If accessing dashboard route directly, redirect to appropriate section
+        if ($request->is('admin/dashboard')) {
+            return match ($user->role) {
+                'gestionnaire_produits' => redirect('/admin/products'),
+                'gestionnaire_commandes' => redirect('/admin/orders'),
+                'editeur_contenu' => redirect('/admin/articles'),
+                default => redirect('/admin/dashboard'),
+            };
+        }
+        
+        // Default unauthorized access
         abort(403, 'Unauthorized action.');
     }
 }

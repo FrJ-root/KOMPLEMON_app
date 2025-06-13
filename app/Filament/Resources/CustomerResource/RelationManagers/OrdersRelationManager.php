@@ -32,6 +32,10 @@ class OrdersRelationManager extends RelationManager
                     ->required()
                     ->label('Statut'),
                     
+                Forms\Components\DateTimePicker::make('date_commande')
+                    ->required()
+                    ->label('Date de commande'),
+                    
                 Forms\Components\TextInput::make('total')
                     ->numeric()
                     ->prefix('€')
@@ -43,13 +47,21 @@ class OrdersRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->recordTitleAttribute('id')
             ->columns([
                 Tables\Columns\TextColumn::make('id')
-                    ->label('Commande #'),
+                    ->label('N° Commande')
+                    ->sortable(),
                     
                 Tables\Columns\TextColumn::make('date_commande')
                     ->dateTime('d/m/Y H:i')
+                    ->sortable()
                     ->label('Date'),
+                    
+                Tables\Columns\TextColumn::make('total')
+                    ->money('EUR')
+                    ->sortable()
+                    ->label('Total'),
                     
                 Tables\Columns\BadgeColumn::make('statut')
                     ->colors([
@@ -60,24 +72,62 @@ class OrdersRelationManager extends RelationManager
                         'info' => 'expédié',
                     ])
                     ->label('Statut'),
-                    
-                Tables\Columns\TextColumn::make('total')
-                    ->money('EUR')
-                    ->label('Total'),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('statut')
+                    ->options([
+                        'en attente' => 'En attente',
+                        'confirmé' => 'Confirmé',
+                        'expédié' => 'Expédié',
+                        'livré' => 'Livré',
+                        'annulé' => 'Annulé',
+                    ])
+                    ->label('Statut'),
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
-                    ->mutateFormDataUsing(function (array $data): array {
-                        $data['date_commande'] = now();
-                        return $data;
-                    }),
+                    ->label('Nouvelle commande')
+                    ->url(route('filament.admin.resources.orders.create')),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->url(fn ($record) => route('filament.admin.resources.orders.edit', $record)),
+                    
+                Tables\Actions\Action::make('change_status')
+                    ->label('Changer statut')
+                    ->icon('heroicon-o-arrow-path')
+                    ->form([
+                        Forms\Components\Select::make('statut')
+                            ->options([
+                                'en attente' => 'En attente',
+                                'confirmé' => 'Confirmé',
+                                'expédié' => 'Expédié',
+                                'livré' => 'Livré',
+                                'annulé' => 'Annulé',
+                            ])
+                            ->required()
+                            ->label('Nouveau statut'),
+                        Forms\Components\Textarea::make('commentaire')
+                            ->label('Commentaire (optionnel)'),
+                    ])
+                    ->action(function ($record, array $data): void {
+                        $previousStatus = $record->statut;
+                        
+                        // Add to history
+                        $history = $record->historique ?? '';
+                        $history .= now()->format('Y-m-d H:i:s') . " - Statut changé de '{$previousStatus}' à '{$data['statut']}'";
+                        
+                        if (!empty($data['commentaire'])) {
+                            $history .= " - Commentaire: {$data['commentaire']}";
+                        }
+                        
+                        $history .= " - par " . auth()->user()->name . "\n";
+                        
+                        $record->update([
+                            'statut' => $data['statut'],
+                            'historique' => $history,
+                        ]);
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

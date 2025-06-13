@@ -34,18 +34,50 @@ class Order extends Model
     }
 
     /**
-     * Get the order details for the order
-     */
-    public function orderDetails(): HasMany
-    {
-        return $this->hasMany(OrderDetail::class, 'commande_id');
-    }
-
-    /**
      * Get the order items for the order
      */
     public function items(): HasMany
     {
-        return $this->hasMany(OrderItem::class, 'commande_id');
+        return $this->hasMany(OrderDetail::class, 'commande_id');
+    }
+    
+    /**
+     * Update the order status with history tracking
+     */
+    public function updateStatus(string $newStatus, string $userName): bool
+    {
+        if ($this->statut === $newStatus) {
+            return false;
+        }
+        
+        $oldStatus = $this->statut;
+        $historyEntry = now()->format('Y-m-d H:i:s') . " - Statut changé de '{$oldStatus}' à '{$newStatus}' par {$userName}\n";
+        
+        $this->historique = ($this->historique ?? '') . $historyEntry;
+        $this->statut = $newStatus;
+        
+        return $this->save();
+    }
+    
+    /**
+     * Get formatted history entries
+     */
+    public function getHistoryEntries(): array
+    {
+        if (empty($this->historique)) {
+            return [];
+        }
+        
+        return array_filter(explode("\n", $this->historique));
+    }
+    
+    /**
+     * Calculate total from items
+     */
+    public function calculateTotal(): float
+    {
+        return $this->items->sum(function ($item) {
+            return $item->quantite * $item->prix_unitaire;
+        });
     }
 }

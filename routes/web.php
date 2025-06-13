@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\StatisticController;
 use App\Http\Controllers\Admin\TestimonialController;
+use App\Http\Controllers\FilamentRedirectController;
 
 /*
 |--------------------------------------------------------------------------
@@ -67,10 +68,10 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     });
     
     // Order Manager routes
-    Route::middleware(['role:administrateur,gestionnaire_commandes'])->group(function () {
+    Route::middleware(['auth', 'role:administrateur,gestionnaire_commandes'])->group(function () {
         Route::resource('orders', OrderController::class);
-        Route::resource('customers', CustomerController::class);
-        Route::get('/export', [OrderController::class, 'export'])->name('admin.orders.export');
+        Route::resource('clients', ClientController::class);
+        Route::get('/orders/export', [OrderController::class, 'export'])->name('orders.export');
     });
     
     // Content Editor routes
@@ -80,6 +81,11 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     });
 });
 
+// Add a route for order export
+Route::get('/admin/orders/export', function() {
+    return Excel::download(new \App\Exports\OrdersExport, 'commandes.xlsx');
+})->middleware(['auth'])->name('admin.orders.export');
+
 // Admin Statistics routes
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
     Route::get('/statistics', [\App\Http\Controllers\Admin\StatisticsController::class, 'index'])->name('statistics.index');
@@ -88,3 +94,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/sales/evolution', [\App\Http\Controllers\Admin\SalesController::class, 'showSalesEvolution'])->name('sales.evolution');
     Route::get('/sales/evolution/data', [\App\Http\Controllers\Admin\SalesController::class, 'getSalesEvolution'])->name('sales.evolution.data');
 });
+
+// Add a route for printing order details
+Route::get('/admin/orders/{order}/print', function(\App\Models\Order $order) {
+    $order->load(['client', 'items.product']);
+    return view('admin.orders.print', compact('order'));
+})->middleware(['auth', 'role:administrateur,gestionnaire_commandes'])->name('orders.print');

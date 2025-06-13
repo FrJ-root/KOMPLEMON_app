@@ -35,7 +35,7 @@ class OrderItemsRelationManager extends RelationManager
                     ->default(1)
                     ->required()
                     ->label('Quantité'),
-                
+                    
                 Forms\Components\TextInput::make('prix_unitaire')
                     ->numeric()
                     ->prefix('€')
@@ -47,6 +47,7 @@ class OrderItemsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->recordTitleAttribute('id')
             ->columns([
                 Tables\Columns\TextColumn::make('product.nom')
                     ->label('Produit'),
@@ -63,8 +64,7 @@ class OrderItemsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('total')
                     ->money('EUR')
                     ->label('Total')
-                    ->getStateUsing(fn ($record) => $record->quantite * $record->prix_unitaire)
-                    ->sortable(),
+                    ->getStateUsing(fn ($record) => $record->prix_unitaire * $record->quantite),
             ])
             ->filters([
                 //

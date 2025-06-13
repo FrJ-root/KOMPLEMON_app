@@ -11,9 +11,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\Auth;
 
 class CustomerResource extends Resource
 {
@@ -23,6 +20,10 @@ class CustomerResource extends Resource
     
     protected static ?string $navigationLabel = 'Clients';
 
+    protected static ?string $modelLabel = 'Client';
+
+    protected static ?string $pluralModelLabel = 'Clients';
+
     protected static ?string $navigationGroup = 'Gestion des Commandes';
 
     protected static ?int $navigationSort = 2;
@@ -31,24 +32,28 @@ class CustomerResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('nom')
-                    ->label('Nom')
-                    ->required()
-                    ->maxLength(255),
-                    
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->required()
-                    ->maxLength(255),
-                    
-                Forms\Components\TextInput::make('telephone')
-                    ->label('Téléphone')
-                    ->tel()
-                    ->maxLength(50),
-                    
-                Forms\Components\Textarea::make('adresse')
-                    ->label('Adresse')
-                    ->columnSpan(2),
+                Forms\Components\Section::make('Informations du client')
+                    ->schema([
+                        Forms\Components\TextInput::make('nom')
+                            ->required()
+                            ->maxLength(255)
+                            ->label('Nom complet'),
+
+                        Forms\Components\TextInput::make('email')
+                            ->email()
+                            ->required()
+                            ->maxLength(255),
+
+                        Forms\Components\TextInput::make('telephone')
+                            ->tel()
+                            ->maxLength(50)
+                            ->label('Téléphone'),
+
+                        Forms\Components\Textarea::make('adresse')
+                            ->rows(3)
+                            ->maxLength(500)
+                            ->label('Adresse complète'),
+                    ])->columns(2),
             ]);
     }
 
@@ -56,22 +61,18 @@ class CustomerResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                    
                 Tables\Columns\TextColumn::make('nom')
-                    ->label('Nom')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->label('Nom'),
                     
                 Tables\Columns\TextColumn::make('email')
                     ->searchable()
                     ->sortable(),
                     
                 Tables\Columns\TextColumn::make('telephone')
-                    ->label('Téléphone')
-                    ->searchable(),
+                    ->searchable()
+                    ->label('Téléphone'),
                     
                 Tables\Columns\TextColumn::make('orders_count')
                     ->counts('orders')
@@ -85,37 +86,39 @@ class CustomerResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\Filter::make('has_orders')
+                    ->label('Avec commandes')
+                    ->query(fn (Builder $query): Builder => $query->has('orders'))
+                    ->toggle(),
+                    
+                Tables\Filters\Filter::make('recent')
+                    ->label('Récents (30 jours)')
+                    ->query(fn (Builder $query): Builder => $query->where('created_at', '>=', now()->subDays(30)))
+                    ->toggle(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
-                    ->before(function (Tables\Actions\DeleteAction $action) {
-                        if (!Auth::user()->hasPermission('manage_customers')) {
-                            Notification::make()
-                                ->title('Permission refusée')
-                                ->body('Vous n\'avez pas la permission de supprimer des clients.')
-                                ->danger()
-                                ->send();
-                                
-                            $action->cancel();
-                        }
-                    }),
+                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\Action::make('view_orders')
+                    ->label('Voir commandes')
+                    ->icon('heroicon-o-shopping-bag')
+                    ->url(fn (Client $record) => 
+                        CustomerResource::getUrl('view-orders', ['record' => $record])
+                    ),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
-                        ->before(function (Tables\Actions\DeleteBulkAction $action) {
-                            if (!Auth::user()->hasPermission('manage_customers')) {
-                                Notification::make()
-                                    ->title('Permission refusée')
-                                    ->body('Vous n\'avez pas la permission de supprimer des clients.')
-                                    ->danger()
-                                    ->send();
-                                    
-                                $action->cancel();
-                            }
+                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('export')
+                        ->label('Exporter')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->action(function ($records) {
+                            return response()->streamDownload(function () use ($records) {
+                                echo "ID,Nom,Email,Téléphone,Adresse,Nombre de commandes\n";
+                                foreach ($records as $record) {
+                                    echo "{$record->id},{$record->nom},{$record->email},{$record->telephone},\"{$record->adresse}\",{$record->orders->count()}\n";
+                                }
+                            }, 'clients.csv');
                         }),
                 ]),
             ]);
@@ -134,12 +137,13 @@ class CustomerResource extends Resource
             'index' => Pages\ListCustomers::route('/'),
             'create' => Pages\CreateCustomer::route('/create'),
             'edit' => Pages\EditCustomer::route('/{record}/edit'),
-            'view' => Pages\ViewCustomer::route('/{record}'),
+            'view-orders' => Pages\ViewCustomerOrders::route('/{record}/orders'),
         ];
     }
-    
+
     public static function canAccess(): bool
     {
-        return auth()->user()->hasPermission('manage_customers');
+        return auth()->user()->role === 'gestionnaire_commandes' || 
+               auth()->user()->role === 'administrateur';
     }
 }

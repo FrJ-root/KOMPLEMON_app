@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Seeder;
 use Faker\Factory as Faker;
 
 class OrderSeeder extends Seeder
@@ -18,21 +18,21 @@ class OrderSeeder extends Seeder
         $orders = [];
         $orderDetails = [];
         
-        for ($i = 0; $i < 100; $i++) {
+        for ($i = 0; $i < 20; $i++) {
             $clientId = $clientIds[array_rand($clientIds)];
             $status = $statuses[array_rand($statuses)];
             $orderDate = $faker->dateTimeBetween('-6 months', 'now');
             
             $orders[] = [
-                'client_id' => $clientId,
                 'date_commande' => $orderDate,
+                'client_id' => $clientId,
                 'statut' => $status,
                 'total' => 0,
                 'historique' => json_encode([
                     [
                         'date' => $orderDate->format('Y-m-d H:i:s'),
+                        'commentaire' => 'Commande créée',
                         'statut' => 'en attente',
-                        'commentaire' => 'Commande créée'
                     ]
                 ]),
                 'created_at' => $orderDate,
@@ -64,7 +64,6 @@ class OrderSeeder extends Seeder
                 ];
             }
             
-            // Update order total
             DB::table('commandes')
                 ->where('id', $orderId)
                 ->update(['total' => $total]);
