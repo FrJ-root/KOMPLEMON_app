@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\Order;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class ClientController extends Controller
 {
@@ -52,12 +51,12 @@ class ClientController extends Controller
     {
         $validated = $request->validate([
             'nom' => 'required|string|max:255',
-            'email' => 'required|email|unique:clients,email|max:255',
+            'email' => 'required|string|email|max:255|unique:clients',
             'telephone' => 'nullable|string|max:50',
             'adresse' => 'nullable|string',
         ]);
         
-        $client = Client::create($validated);
+        Client::create($validated);
         
         return redirect()->route('clients.index')
             ->with('success', 'Client créé avec succès.');
@@ -93,7 +92,7 @@ class ClientController extends Controller
     {
         $validated = $request->validate([
             'nom' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:clients,email,'.$client->id,
+            'email' => 'required|string|email|max:255|unique:clients,email,' . $client->id,
             'telephone' => 'nullable|string|max:50',
             'adresse' => 'nullable|string',
         ]);
@@ -109,20 +108,16 @@ class ClientController extends Controller
      */
     public function destroy(Client $client)
     {
-        try {
-            // Check if client has orders
-            if ($client->orders()->count() > 0) {
-                return back()->with('error', 'Impossible de supprimer ce client car il a des commandes associées.');
-            }
-            
-            $client->delete();
-            
-            return redirect()->route('clients.index')
-                ->with('success', 'Client supprimé avec succès.');
-        } catch (\Exception $e) {
-            Log::error('Client deletion error: ' . $e->getMessage());
-            
-            return back()->with('error', 'Une erreur est survenue lors de la suppression du client.');
+        // Check if client has orders
+        $orderCount = Order::where('client_id', $client->id)->count();
+        
+        if ($orderCount > 0) {
+            return back()->with('error', "Ce client ne peut pas être supprimé car il a {$orderCount} commandes associées.");
         }
+        
+        $client->delete();
+        
+        return redirect()->route('clients.index')
+            ->with('success', 'Client supprimé avec succès.');
     }
 }

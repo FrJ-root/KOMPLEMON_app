@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Filament\Facades\Filament;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AppServiceProvider extends ServiceProvider
 {

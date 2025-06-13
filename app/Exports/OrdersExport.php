@@ -15,16 +15,10 @@ class OrdersExport implements FromCollection, WithHeadings, WithMapping, WithSty
 {
     protected $orders;
 
-    public function __construct($orders)
+    public function __construct($orders = null)
     {
-        // If this is a Collection already, use it directly
-        if ($orders instanceof Collection) {
-            $this->orders = $orders;
-        } 
-        // If this is a Query, execute it
-        else {
-            $this->orders = $orders;
-        }
+        // If no orders are provided, get all orders
+        $this->orders = $orders ?? Order::with(['client', 'items.product'])->get();
     }
 
     /**
@@ -54,7 +48,7 @@ class OrdersExport implements FromCollection, WithHeadings, WithMapping, WithSty
     }
 
     /**
-     * @param Order $order
+     * @param mixed $order
      * @return array
      */
     public function map($order): array
@@ -69,7 +63,7 @@ class OrdersExport implements FromCollection, WithHeadings, WithMapping, WithSty
         }
         
         $products = $order->items->map(function ($item) {
-            return $item->quantite . 'x ' . $item->product->nom . ' (' . number_format($item->prix_unitaire, 2) . '€)';
+            return $item->quantite . 'x ' . ($item->product->nom ?? 'Produit inconnu') . ' (' . number_format($item->prix_unitaire, 2) . '€)';
         })->implode(', ');
 
         return [
@@ -85,6 +79,10 @@ class OrdersExport implements FromCollection, WithHeadings, WithMapping, WithSty
         ];
     }
 
+    /**
+     * @param Worksheet $sheet
+     * @return array
+     */
     public function styles(Worksheet $sheet)
     {
         return [
@@ -107,5 +105,7 @@ class OrdersExport implements FromCollection, WithHeadings, WithMapping, WithSty
                 ],
             ],
         ];
+    }
+}
     }
 }

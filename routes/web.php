@@ -6,14 +6,13 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\CouponController;
+use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\StatisticController;
 use App\Http\Controllers\Admin\TestimonialController;
-use App\Http\Controllers\FilamentRedirectController;
 
 /*
 |--------------------------------------------------------------------------
@@ -68,23 +67,15 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     });
     
     // Order Manager routes
-    Route::middleware(['auth', 'role:administrateur,gestionnaire_commandes'])->group(function () {
+    Route::middleware(['role:administrateur,gestionnaire_commandes'])->group(function () {
         Route::resource('orders', OrderController::class);
         Route::resource('clients', ClientController::class);
-        Route::get('/orders/export', [OrderController::class, 'export'])->name('orders.export');
-    });
-    
-    // Content Editor routes
-    Route::middleware(['role:administrateur,editeur_contenu'])->group(function () {
-        Route::resource('articles', ArticleController::class);
-        Route::resource('testimonials', TestimonialController::class);
+        
+        // Fix the export routes by adding both GET and POST methods
+        Route::get('/orders/export', [OrderController::class, 'export'])->name('admin.orders.export');
+        Route::get('/orders/{order}/export', [OrderController::class, 'exportSingle'])->name('orders.export.single');
     });
 });
-
-// Add a route for order export
-Route::get('/admin/orders/export', function() {
-    return Excel::download(new \App\Exports\OrdersExport, 'commandes.xlsx');
-})->middleware(['auth'])->name('admin.orders.export');
 
 // Admin Statistics routes
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {

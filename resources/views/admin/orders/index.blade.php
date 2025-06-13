@@ -82,12 +82,24 @@
 
     <!-- Orders Table -->
     <div class="bg-gray-800 rounded-lg p-6 border border-purple-500/10">
+        @if(session('success'))
+        <div class="bg-green-900/30 border border-green-500/30 text-green-400 px-4 py-3 rounded-lg mb-6">
+            {{ session('success') }}
+        </div>
+        @endif
+        
+        @if(session('error'))
+        <div class="bg-red-900/30 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg mb-6">
+            {{ session('error') }}
+        </div>
+        @endif
+        
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-700">
                 <thead>
                     <tr>
                         <th class="px-6 py-3 bg-gray-800 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                            Commande
+                            Commande #
                         </th>
                         <th class="px-6 py-3 bg-gray-800 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                             Date
@@ -146,7 +158,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
                                 </a>
-                                <form action="{{ route('orders.destroy', $order) }}" method="POST" class="inline-block" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette commande ?')">
+                                <form action="{{ route('orders.destroy', $order) }}" method="POST" class="inline-block delete-order-form" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette commande ?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="text-red-400 hover:text-red-300">
@@ -178,4 +190,38 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ensure delete forms work properly
+        const deleteForms = document.querySelectorAll('.delete-order-form');
+        
+        deleteForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const confirmed = confirm('Êtes-vous sûr de vouloir supprimer cette commande ?');
+                
+                if (!confirmed) {
+                    e.preventDefault();
+                    return false;
+                }
+                
+                // Disable button to prevent double submission
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = `
+                        <svg class="w-5 h-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    `;
+                }
+                
+                return true;
+            });
+        });
+    });
+</script>
+@endpush
 @endsection

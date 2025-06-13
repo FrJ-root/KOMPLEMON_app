@@ -25,12 +25,15 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
+        // Get a fresh query builder instance to avoid any issues
         $query = Order::query()->with('client');
         
+        // Filter by status
         if ($request->has('statut') && $request->statut) {
             $query->where('statut', $request->statut);
         }
         
+        // Filter by date range
         if ($request->has('date_debut') && $request->date_debut) {
             $query->whereDate('date_commande', '>=', $request->date_debut);
         }
@@ -39,6 +42,7 @@ class OrderController extends Controller
             $query->whereDate('date_commande', '<=', $request->date_fin);
         }
         
+        // Search by ID or client name
         if ($request->has('search') && $request->search) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -50,10 +54,13 @@ class OrderController extends Controller
             });
         }
         
+        // Get the total count before pagination
         $totalCount = $query->count();
         
+        // Apply pagination with a fixed number per page
         $orders = $query->latest('date_commande')->paginate(10);
         
+        // Create view data
         $viewData = [
             'orders' => $orders,
             'totalCount' => $totalCount,
@@ -65,6 +72,7 @@ class OrderController extends Controller
             ]
         ];
         
+        // Return view with orders
         return view('admin.orders.index', $viewData);
     }
     
@@ -285,10 +293,14 @@ class OrderController extends Controller
                 $product = Product::find($item->produit_id);
                 if ($product && $product->suivi_stock) {
                     $product->increment('stock', $item->quantite);
+                    $product->save();
                 }
             }
             
-            // Delete order and items (cascade)
+            // First delete order items
+            $order->items()->delete();
+            
+            // Then delete the order itself
             $order->delete();
             
             DB::commit();
@@ -299,44 +311,120 @@ class OrderController extends Controller
             DB::rollBack();
             Log::error('Order deletion error: ' . $e->getMessage());
             
-            return back()
-                ->with('error', 'Une erreur est survenue lors de la suppression de la commande.');
+            return redirect()->route('orders.index')
+                ->with('error', 'Une erreur est survenue lors de la suppression de la commande: ' . $e->getMessage());
         }
     }
     
     /**
-     * Export orders to Excel.
+     * Export orders to Excel or show export form.
      */
     public function export(Request $request)
     {
-        $query = Order::with(['client', 'items.product']);
-        
-        // Apply the same filters as in the index method
-        if ($request->has('statut') && $request->statut) {
-            $query->where('statut', $request->statut);
+        // If this is just a GET request without parameters, show the export form
+        if ($request->method() === 'GET' && !$request->has('format')) {
+            return view('admin.orders.export');
         }
         
-        if ($request->has('date_debut') && $request->date_debut) {
-            $query->whereDate('date_commande', '>=', $request->date_debut);
+        try {
+            $query = Order::with(['client', 'items.product']);
+            
+            // Filter by period
+            if ($request->has('period')) {
+                $period = $request->input('period');
+                
+                switch ($period) {
+                    case 'today':
+                        $query->whereDate('date_commande', today());
+                        break;
+                    case 'week':
+                        $query->whereBetween('date_commande', [now()->startOfWeek(), now()->endOfWeek()]);
+                        break;
+                    case 'month':
+                        $query->whereMonth('date_commande', now()->month)
+                              ->whereYear('date_commande', now()->year);
+                        break;
+                    case 'custom':
+                        if ($request->has('date_debut') && $request->date_debut) {
+                            $query->whereDate('date_commande', '>=', $request->date_debut);
+                        }
+                        if ($request->has('date_fin') && $request->date_fin) {
+                            $query->whereDate('date_commande', '<=', $request->date_fin);
+                        }
+                        break;
+                }
+            }
+            
+            // Filter by status
+            if ($request->has('status') && is_array($request->status) && !in_array('all', $request->status)) {
+                $query->whereIn('statut', $request->status);
+            }
+            
+            // Get the orders
+            $orders = $query->latest('date_commande')->get();
+            
+            // Handle different export formats
+            $format = $request->input('format', 'excel');
+            $fileName = 'commandes_' . now()->format('Y-m-d');
+            
+            switch ($format) {
+                case 'csv':
+                    return Excel::download(new OrdersExport($orders), $fileName . '.csv', \Maatwebsite\Excel\Excel::CSV);
+                case 'pdf':
+                    // For PDF, you'll need to set up a PDF exporter
+                    // This is just a placeholder, adjust based on your PDF library
+                    return Excel::download(new OrdersExport($orders), $fileName . '.pdf', \Maatwebsite\Excel\Excel::DOMPDF);
+                default: // excel
+                    return Excel::download(new OrdersExport($orders), $fileName . '.xlsx');
+            }
+        } catch (\Exception $e) {
+            // Log the error
+            Log::error('Order export error: ' . $e->getMessage());
+            
+            // Redirect back with error message
+            return redirect()->back()->with('error', 'Erreur lors de l\'exportation: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Show export form with selected orders.
+     */
+    public function exportForm(Request $request)
+    {
+        if (!$request->has('selected_orders') || count($request->selected_orders) === 0) {
+            return redirect()->route('orders.index')
+                ->with('error', 'Veuillez sélectionner au moins une commande à exporter.');
         }
         
-        if ($request->has('date_fin') && $request->date_fin) {
-            $query->whereDate('date_commande', '<=', $request->date_fin);
+        $selectedOrderIds = $request->selected_orders;
+        $selectedOrders = Order::with(['client', 'items.product'])
+            ->whereIn('id', $selectedOrderIds)
+            ->get();
+        
+        return view('admin.orders.export', compact('selectedOrders'));
+    }
+    
+    /**
+     * Export a specific order to Excel.
+     */
+    public function exportSingle(Order $order)
+    {
+        try {
+            // Load relationships
+            $order->load(['client', 'items.product']);
+            
+            // Create a collection with this single order
+            $orders = collect([$order]);
+            
+            // Export the order
+            return Excel::download(
+                new OrdersExport($orders),
+                'commande_' . $order->id . '_' . now()->format('Y-m-d') . '.xlsx'
+            );
+        } catch (\Exception $e) {
+            Log::error('Order export error: ' . $e->getMessage());
+            
+            return back()->with('error', 'Une erreur est survenue lors de l\'exportation: ' . $e->getMessage());
         }
-        
-        if ($request->has('search') && $request->search) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('id', 'like', "%{$search}%")
-                  ->orWhereHas('client', function($q) use ($search) {
-                      $q->where('nom', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%");
-                  });
-            });
-        }
-        
-        $orders = $query->latest('date_commande')->get();
-        
-        return Excel::download(new OrdersExport($orders), 'commandes_' . now()->format('Y-m-d') . '.xlsx');
     }
 }
