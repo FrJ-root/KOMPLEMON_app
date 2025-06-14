@@ -71,9 +71,9 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::resource('orders', OrderController::class);
         Route::resource('clients', ClientController::class);
         
-        // Fix the export routes by adding both GET and POST methods
-        Route::get('/orders/export', [OrderController::class, 'export'])->name('admin.orders.export');
-        Route::get('/orders/{order}/export', [OrderController::class, 'exportSingle'])->name('orders.export.single');
+        // Update the export routes
+        Route::match(['get', 'post'], '/orders/export', [OrderController::class, 'export'])->name('admin.orders.export');
+        Route::match(['get', 'post'], '/orders/{order}/export', [OrderController::class, 'exportSingle'])->name('orders.export.single');
     });
 });
 

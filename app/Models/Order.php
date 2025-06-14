@@ -10,21 +10,22 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Order extends Model
 {
     use HasFactory;
-
+    
     protected $table = 'commandes';
-
+    
     protected $fillable = [
         'client_id',
         'date_commande',
         'statut',
         'total',
-        'historique',
+        'historique'
     ];
-
+    
     protected $casts = [
         'date_commande' => 'datetime',
+        'total' => 'decimal:2'
     ];
-
+    
     /**
      * Get the client that owns the order
      */
@@ -38,13 +39,13 @@ class Order extends Model
      */
     public function items(): HasMany
     {
-        return $this->hasMany(OrderDetail::class, 'commande_id');
+        return $this->hasMany(OrderItem::class, 'commande_id');
     }
     
     /**
-     * Update the order status with history tracking
+     * Update order status and add to history
      */
-    public function updateStatus(string $newStatus, string $userName): bool
+    public function updateStatus(string $newStatus, string $userName)
     {
         if ($this->statut === $newStatus) {
             return false;
