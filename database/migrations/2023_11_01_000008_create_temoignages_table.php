@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('nom_client', 255);
             $table->text('contenu');
             $table->string('media_url', 255)->nullable();
+            $table->string('media_type', 20)->default('none'); // 'image', 'video', 'youtube', 'none'
             $table->enum('statut', ['approuvé', 'en attente'])->default('en attente');
             $table->timestamps();
         });

@@ -80,6 +80,10 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::middleware(['role:administrateur,editeur_contenu'])->group(function () {
         Route::resource('articles', ArticleController::class);
         Route::resource('testimonials', TestimonialController::class);
+        
+        // Add the missing route for testimonial approval toggle
+        Route::patch('/testimonials/{testimonial}/toggle-approval', [TestimonialController::class, 'toggleApproval'])
+            ->name('testimonials.toggleApproval');
     });
 });
 
