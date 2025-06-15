@@ -30,7 +30,6 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Indigo,
             ])
-            // Add this to set a custom home page for different roles
             ->homeUrl(function () {
                 if (auth()->user()->role === 'gestionnaire_commandes') {
                     return '/admin/dashboard';
@@ -63,9 +62,7 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            // Add this to customize the default login page path
             ->login()
-            // Make sure Filament uses your regular auth system
             ->authGuard('web');
     }
 }

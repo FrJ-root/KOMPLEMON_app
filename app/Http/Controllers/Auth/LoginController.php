@@ -89,7 +89,7 @@ class LoginController extends Controller
             'gestionnaire_produits' => redirect('/admin/products'),
             // Change to point to the Filament dashboard
             'gestionnaire_commandes' => redirect('/admin/dashboard'),
-            'editeur_contenu' => redirect('/admin/articles'),
+            'editeur_contenu' => redirect('/admin/dashboard'), // Redirect to dashboard instead of articles
             default => redirect('/admin/dashboard'),
         };
     }

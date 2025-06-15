@@ -75,6 +75,12 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::match(['get', 'post'], '/orders/export', [OrderController::class, 'export'])->name('admin.orders.export');
         Route::match(['get', 'post'], '/orders/{order}/export', [OrderController::class, 'exportSingle'])->name('orders.export.single');
     });
+    
+    // Content Editor routes
+    Route::middleware(['role:administrateur,editeur_contenu'])->group(function () {
+        Route::resource('articles', ArticleController::class);
+        Route::resource('testimonials', TestimonialController::class);
+    });
 });
 
 // Admin Statistics routes
