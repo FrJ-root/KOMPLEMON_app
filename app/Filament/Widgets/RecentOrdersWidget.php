@@ -2,8 +2,8 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Order;
 use Filament\Tables;
+use App\Models\Order;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 

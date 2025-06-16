@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\OrderResource\Pages;
 
-use App\Filament\Resources\OrderResource;
 use Filament\Actions;
-use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\Auth;
+use App\Filament\Resources\OrderResource;
+use Filament\Resources\Pages\CreateRecord;
 
 class CreateOrder extends CreateRecord
 {
@@ -22,7 +22,7 @@ class CreateOrder extends CreateRecord
     {
         return $this->getResource()::getUrl('index');
     }
-}
+    
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');

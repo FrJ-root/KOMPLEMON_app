@@ -13,17 +13,12 @@ class Testimonial extends Model
 
     protected $fillable = [
         'nom_client',
-        'contenu',
-        'media_url',
         'media_type',
+        'media_url',
+        'contenu',
         'statut',
     ];
     
-    /**
-     * Get the media type based on file extension or URL
-     *
-     * @return string
-     */
     public function getMediaTypeAttribute($value)
     {
         if ($value) {
@@ -51,21 +46,11 @@ class Testimonial extends Model
         return 'none';
     }
     
-    /**
-     * Check if testimonial is approved
-     *
-     * @return bool
-     */
     public function isApproved()
     {
         return $this->statut === 'approuvé';
     }
     
-    /**
-     * Check if testimonial has media
-     *
-     * @return bool
-     */
     public function hasMedia()
     {
         return !is_null($this->media_url);

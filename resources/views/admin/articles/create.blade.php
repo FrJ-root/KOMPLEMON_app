@@ -21,7 +21,6 @@
         <div class="bg-gray-800 rounded-lg p-6 border border-purple-500/10 mb-6">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2 space-y-6">
-                    <!-- Title Field -->
                     <div class="form-group">
                         <label for="titre" class="block text-gray-300 mb-2">Titre <span class="text-purple-500">*</span></label>
                         <input type="text" id="titre" name="titre" 
@@ -32,7 +31,6 @@
                         @enderror
                     </div>
                     
-                    <!-- Content Field -->
                     <div class="form-group">
                         <label for="contenu" class="block text-gray-300 mb-2">Contenu <span class="text-purple-500">*</span></label>
                         <textarea id="contenu" name="contenu" rows="12"
@@ -45,7 +43,6 @@
                 </div>
                 
                 <div class="space-y-6">
-                    <!-- Category Dropdown -->
                     <div class="form-group">
                         <label for="categorie" class="block text-gray-300 mb-2">Catégorie <span class="text-purple-500">*</span></label>
                         <div class="relative">
@@ -72,7 +69,6 @@
                         @enderror
                     </div>
                     
-                    <!-- Status Field -->
                     <div class="form-group">
                         <label for="statut" class="block text-gray-300 mb-2">Statut <span class="text-purple-500">*</span></label>
                         <div class="relative">
@@ -93,7 +89,6 @@
                         @enderror
                     </div>
                     
-                    <!-- Featured Image -->
                     <div class="form-group">
                         <label for="image" class="block text-gray-300 mb-2">Image à la une</label>
                         <label for="image" class="block w-full cursor-pointer">
@@ -122,7 +117,6 @@
                         @enderror
                     </div>
                     
-                    <!-- Publication Info -->
                     <div class="bg-gray-900/50 rounded-lg p-4 mt-4">
                         <div class="text-gray-400 text-sm mb-3">
                             <span class="block font-medium text-white mb-1">Informations de publication</span>
@@ -147,7 +141,6 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Image preview
         const imageInput = document.getElementById('image');
         const imagePreview = document.getElementById('image-preview');
         const previewImg = imagePreview.querySelector('img');
@@ -170,8 +163,6 @@
             imagePreview.classList.add('hidden');
         });
         
-        // Rich text editor initialization (if you have a WYSIWYG editor)
-        // This is a placeholder - you'd need to add your specific editor initialization code
         if (typeof ClassicEditor !== 'undefined') {
             ClassicEditor
                 .create(document.querySelector('#contenu'))

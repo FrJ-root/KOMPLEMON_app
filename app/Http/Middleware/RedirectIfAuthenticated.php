@@ -2,19 +2,14 @@
 
 namespace App\Http\Middleware;
 
-use App\Providers\RouteServiceProvider;
-use Closure;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
+use App\Providers\RouteServiceProvider;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use Closure;
 
 class RedirectIfAuthenticated
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
     public function handle(Request $request, Closure $next, string ...$guards): Response
     {
         $guards = empty($guards) ? [null] : $guards;
@@ -23,7 +18,6 @@ class RedirectIfAuthenticated
             if (Auth::guard($guard)->check()) {
                 $user = Auth::guard($guard)->user();
                 
-                // Redirect based on user role
                 switch ($user->role) {
                     case 'administrateur':
                         return redirect('/admin/dashboard');
@@ -32,7 +26,6 @@ class RedirectIfAuthenticated
                         return redirect('/admin/products');
                         
                     case 'gestionnaire_commandes':
-                        // Update to use the correct dashboard path
                         return redirect('/admin/dashboard');
                         
                     case 'editeur_contenu':

@@ -172,24 +172,20 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Handle image removal
         const removeImageBtn = document.querySelector('[data-action="remove-image"]');
         if (removeImageBtn) {
             removeImageBtn.addEventListener('click', function() {
-                // Create hidden input to signal image removal
                 const hiddenInput = document.createElement('input');
                 hiddenInput.type = 'hidden';
                 hiddenInput.name = 'remove_image';
                 hiddenInput.value = '1';
                 document.querySelector('form').appendChild(hiddenInput);
                 
-                // Update UI
                 const imageContainer = this.closest('.w-full.md\\:w-1\\/3');
                 imageContainer.remove();
             });
         }
         
-        // Show file name when selected
         const imageInput = document.getElementById('image');
         const imagePreviewName = document.getElementById('image-preview-name');
         
@@ -202,7 +198,6 @@
             });
         }
         
-        // Initialize WYSIWYG editor if needed
         if (typeof ClassicEditor !== 'undefined') {
             ClassicEditor
                 .create(document.querySelector('#contenu'), {

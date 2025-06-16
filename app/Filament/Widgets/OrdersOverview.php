@@ -3,9 +3,9 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Order;
-use Filament\Widgets\StatsOverviewWidget as BaseWidget;
-use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\DB;
+use Filament\Widgets\StatsOverviewWidget\Stat; 
+use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 
 class OrdersOverview extends BaseWidget
 {

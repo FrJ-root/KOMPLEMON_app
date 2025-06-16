@@ -22,7 +22,6 @@ class PromotionSeeder extends Seeder
             $type = rand(0, 1) === 0 ? 'pourcentage' : 'montant';
             $value = $type === 'pourcentage' ? rand(5, 50) : rand(500, 3000) / 100;
             
-            // Sometimes add minimum amount and usage limits
             $minimumAmount = rand(0, 1) === 1 ? rand(2000, 10000) / 100 : null;
             $usageLimit = rand(0, 1) === 1 ? rand(1, 100) : null;
             

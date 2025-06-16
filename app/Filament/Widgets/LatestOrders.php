@@ -2,10 +2,10 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Order;
 use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
+use App\Models\Order;
 use Filament\Tables\Table;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Widgets\TableWidget as BaseWidget;
 
 class LatestOrders extends BaseWidget

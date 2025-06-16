@@ -1,22 +1,24 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\ProductMedia;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\Product;
 
-
-class MediaController extends Controller{
-
-    public function __construct(){
+class MediaController extends Controller
+{
+    public function __construct()
+    {
         $this->middleware('role:administrateur,gestionnaire_produits');
     }
     
-    public function index(Request $request){
+    public function index(Request $request)
+    {
         $query = ProductMedia::with('product');
         
         if ($request->has('product_id') && $request->product_id) {
@@ -43,7 +45,8 @@ class MediaController extends Controller{
         return view('admin.media.index', compact('media', 'products'));
     }
     
-    public function create(){
+    public function create()
+    {
         $products = Product::orderBy('nom')->get();
         return view('admin.media.create', compact('products'));
     }
@@ -51,8 +54,8 @@ class MediaController extends Controller{
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'files.*' => 'required|file|mimes:jpeg,png,jpg,gif,webp,mp4,mov,avi|max:20480',
             'produit_id' => 'required|exists:produits,id',
+            'files.*' => 'required|file|mimes:jpeg,png,jpg,gif,webp,mp4,mov,avi|max:20480',
             'type' => 'required|in:image,video',
             'optimize' => 'nullable|boolean',
         ]);
@@ -76,9 +79,9 @@ class MediaController extends Controller{
             $mediaItems[] = [
                 'produit_id' => $validated['produit_id'],
                 'url' => $storagePath . $fileName,
+                'type' => $type,
                 'created_at' => now(),
                 'updated_at' => now(),
-                'type' => $type,
             ];
         }
         
@@ -191,7 +194,6 @@ class MediaController extends Controller{
         $pathInfo = pathinfo($imagePath);
         $directory = $pathInfo['dirname'];
         $filename = $pathInfo['basename'];
-        
         $mediumPath = str_replace($directory, $directory . '/medium', $imagePath);
         if (Storage::disk('public')->exists($mediumPath)) {
             Storage::disk('public')->delete($mediumPath);

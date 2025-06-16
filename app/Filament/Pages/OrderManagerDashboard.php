@@ -2,14 +2,14 @@
 
 namespace App\Filament\Pages;
 
-use App\Filament\Resources\OrderResource;
-use App\Filament\Resources\CustomerResource;
 use App\Models\Order;
 use App\Models\Client;
 use Filament\Pages\Page;
 use Filament\Actions\Action;
 use Illuminate\Support\Facades\DB;
 use Filament\Support\Enums\IconPosition;
+use App\Filament\Resources\OrderResource;
+use App\Filament\Resources\CustomerResource;
 
 class OrderManagerDashboard extends Page
 {
@@ -30,7 +30,6 @@ class OrderManagerDashboard extends Page
         $todayOrders = Order::whereDate('date_commande', today())->count();
         $todayPendingOrders = Order::whereDate('date_commande', today())->where('statut', 'en attente')->count();
         
-        // Monthly revenue calculation
         $currentMonthRevenue = Order::whereMonth('date_commande', now()->month)
             ->whereYear('date_commande', now()->year)
             ->sum('total');
@@ -56,12 +55,12 @@ class OrderManagerDashboard extends Page
         
         return [
             'total_orders' => $totalOrders,
-            'pending_orders' => $pendingOrders,
             'today_orders' => $todayOrders,
+            'pending_orders' => $pendingOrders,
+            'customers_count' => $customersCount,
             'today_pending' => $todayPendingOrders,
             'monthly_revenue' => $currentMonthRevenue,
             'revenue_percent_change' => $percentChange,
-            'customers_count' => $customersCount,
             'customer_percent_change' => $customerPercentChange,
         ];
     }

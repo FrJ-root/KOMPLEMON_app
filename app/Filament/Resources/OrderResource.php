@@ -2,25 +2,25 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\OrderResource\Pages;
 use App\Filament\Resources\OrderResource\RelationManagers;
-use App\Models\Order;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
+use App\Filament\Resources\OrderResource\Pages;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\Filter;
-use Illuminate\Support\Carbon;
-use Filament\Infolists;
-use Filament\Infolists\Infolist;
-use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\BulkAction;
-use Illuminate\Database\Eloquent\Collection;
-use App\Exports\OrdersExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Filters\Filter;
+use Filament\Infolists\Infolist;
+use Filament\Resources\Resource;
+use Illuminate\Support\Carbon;
+use App\Exports\OrdersExport;
+use Filament\Tables\Table;
+use Filament\Forms\Form;
+use Filament\Infolists;
+use App\Models\Order;
+use Filament\Tables;
+use Filament\Forms;
 
 class OrderResource extends Resource
 {

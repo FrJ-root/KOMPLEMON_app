@@ -14,11 +14,11 @@ class Order extends Model
     protected $table = 'commandes';
     
     protected $fillable = [
-        'client_id',
         'date_commande',
+        'historique',
+        'client_id',
         'statut',
         'total',
-        'historique'
     ];
     
     protected $casts = [
@@ -26,33 +26,21 @@ class Order extends Model
         'total' => 'decimal:2'
     ];
     
-    /**
-     * Get the client that owns the order
-     */
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class, 'client_id');
     }
 
-    /**
-     * Get the order details (items) for the order
-     */
     public function orderDetails(): HasMany
     {
         return $this->hasMany(OrderDetail::class, 'commande_id');
     }
 
-    /**
-     * Alias for orderDetails to maintain compatibility with both naming conventions
-     */
     public function items(): HasMany
     {
         return $this->orderDetails();
     }
     
-    /**
-     * Update order status and add to history
-     */
     public function updateStatus(string $newStatus, string $userName)
     {
         if ($this->statut === $newStatus) {
@@ -68,9 +56,6 @@ class Order extends Model
         return $this->save();
     }
     
-    /**
-     * Get formatted history entries
-     */
     public function getHistoryEntries(): array
     {
         if (empty($this->historique)) {
@@ -80,9 +65,6 @@ class Order extends Model
         return array_filter(explode("\n", $this->historique));
     }
     
-    /**
-     * Calculate total from items
-     */
     public function calculateTotal(): float
     {
         return $this->items->sum(function ($item) {

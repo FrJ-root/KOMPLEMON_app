@@ -27,9 +27,9 @@ class CouponController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'code' => 'required|unique:coupons|max:20',
-            'discount_amount' => 'required_without:discount_percent|nullable|numeric',
             'discount_percent' => 'required_without:discount_amount|nullable|integer|min:1|max:100',
+            'discount_amount' => 'required_without:discount_percent|nullable|numeric',
+            'code' => 'required|unique:coupons|max:20',
             'description' => 'nullable|string',
             'expires_at' => 'nullable|date',
             'is_active' => 'boolean',
@@ -49,9 +49,9 @@ class CouponController extends Controller
     public function update(Request $request, Coupon $coupon)
     {
         $validated = $request->validate([
-            'code' => 'required|max:20|unique:coupons,code,' . $coupon->id,
-            'discount_amount' => 'required_without:discount_percent|nullable|numeric',
             'discount_percent' => 'required_without:discount_amount|nullable|integer|min:1|max:100',
+            'discount_amount' => 'required_without:discount_percent|nullable|numeric',
+            'code' => 'required|max:20|unique:coupons,code,' . $coupon->id,
             'description' => 'nullable|string',
             'expires_at' => 'nullable|date',
             'is_active' => 'boolean',

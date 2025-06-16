@@ -3,10 +3,10 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Order;
-use App\Models\Product;
 use App\Models\Client;
-use Filament\Widgets\StatsOverviewWidget as BaseWidget;
+use App\Models\Product;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 
 class DashboardStatsWidget extends BaseWidget
 {

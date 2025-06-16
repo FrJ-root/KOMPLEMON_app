@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Illuminate\Support\Facades\Schema;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use App\Models\Product;
 use App\Models\Order;
 use App\Models\User;
-use App\Models\Product;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 class StatisticController extends Controller
 {
@@ -20,62 +20,43 @@ class StatisticController extends Controller
     
     public function index()
     {
-        // Get summary statistics
         $totalOrders = Order::count();
         $totalUsers = User::count();
         $totalProducts = Product::count();
         $totalRevenue = Order::where('statut', 'terminé')->sum('total');
-        
-        // Total sales count
         $totalSales = Order::where('statut', 'terminé')->count();
-        
-        // Get monthly sales data for the past 6 months
         $monthlySales = $this->getMonthlySalesData();
-        
-        // Get best selling products
         $bestSellingProducts = $this->getTopSellingProducts(5);
-        
-        // Get product statistics (sales and views)
         $productStatistics = $this->getProductStatistics();
-        
-        // Get recent orders
         $recentOrders = Order::with('user')
             ->orderBy('created_at', 'desc')
             ->take(10)
             ->get();
-        
-        // Get pending orders
         $pendingOrders = Order::with('user')
             ->where('statut', 'en attente')
             ->orderBy('created_at', 'desc')
             ->take(10)
             ->get();
-        
-        // Get order stats by status
         $ordersByStatus = $this->getOrdersByStatus();
-        
-        // Get daily revenue for the last 30 days
         $dailyRevenue = $this->getDailyRevenue();
         
         return view('admin.statistics.index', compact(
-            'totalOrders',
-            'totalUsers',
-            'totalProducts',
-            'totalRevenue',
-            'totalSales',
-            'monthlySales',
             'bestSellingProducts',
             'productStatistics',
-            'recentOrders',
-            'pendingOrders',
             'ordersByStatus',
-            'dailyRevenue'
+            'pendingOrders',
+            'totalProducts',
+            'totalRevenue',
+            'monthlySales',
+            'recentOrders',
+            'dailyRevenue',
+            'totalOrders',
+            'totalUsers',
+            'totalSales',
         ));
     }
     
-    public function sales()
-    {
-        // Get sales data by various dimensions
+    public function sales(){
         $salesByDay = $this->getSalesByDay();
         $salesByMonth = $this->getSalesByMonth();
         $salesByCategory = $this->getSalesByCategory();
@@ -83,25 +64,23 @@ class StatisticController extends Controller
         return view('admin.statistics.sales', compact(
             'salesByDay',
             'salesByMonth',
-            'salesByCategory'
+            'salesByCategory',
         ));
     }
     
     public function users()
     {
-        // Get user registration data
         $registrationsByMonth = $this->getUserRegistrationsByMonth();
         $usersByRole = $this->getUsersByRole();
         
         return view('admin.statistics.users', compact(
             'registrationsByMonth',
-            'usersByRole'
+            'usersByRole',
         ));
     }
     
     public function products()
     {
-        // Get product statistics
         $topSellingProducts = $this->getTopSellingProducts();
         $productsByCategory = $this->getProductsByCategory();
         
@@ -158,7 +137,6 @@ class StatisticController extends Controller
     
     private function getSalesByCategory()
     {
-        // Updated to use correct table names
         return DB::table('details_commandes')
             ->join('commandes', 'details_commandes.commande_id', '=', 'commandes.id')
             ->join('produits', 'details_commandes.produit_id', '=', 'produits.id')
@@ -199,7 +177,6 @@ class StatisticController extends Controller
     
     private function getTopSellingProducts($limit = 10)
     {
-        // Updated to use correct table names
         return DB::table('details_commandes')
             ->join('produits', 'details_commandes.produit_id', '=', 'produits.id')
             ->join('commandes', 'details_commandes.commande_id', '=', 'commandes.id')
@@ -222,7 +199,7 @@ class StatisticController extends Controller
             ->leftJoin('details_commandes', 'produits.id', '=', 'details_commandes.produit_id')
             ->leftJoin('commandes', function($join) {
                 $join->on('details_commandes.commande_id', '=', 'commandes.id')
-                    ->where('commandes.statut', '=', 'terminé'); // Add quotes around 'terminé'
+                    ->where('commandes.statut', '=', 'terminé');
             })
             ->select(
                 'produits.id',
@@ -242,7 +219,6 @@ class StatisticController extends Controller
     
     private function getOrdersByStatus()
     {
-        // Updated to use correct table name
         return DB::table('commandes')
             ->select('statut as status', DB::raw('COUNT(*) as count'))
             ->groupBy('statut')

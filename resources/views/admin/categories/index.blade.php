@@ -15,7 +15,6 @@
         </div>
     </div>
 
-    <!-- Filter and Search Bar -->
     <div class="bg-gray-800 rounded-lg p-4 mb-6 border border-purple-500/10">
         <div class="flex flex-col md:flex-row gap-4">
             <div class="relative flex-1">
@@ -113,7 +112,6 @@
         </div>
         @endforeach
         
-        <!-- Add new category card -->
         <a href="{{ route('categories.create') }}" class="bg-gray-800 rounded-lg border-2 border-dashed border-gray-700 hover:border-purple-500 flex flex-col items-center justify-center p-6 transition-all h-full">
             <svg class="w-16 h-16 text-gray-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -122,7 +120,6 @@
         </a>
     </div>
     
-    <!-- Empty state -->
     @if($categories->isEmpty())
     <div class="bg-gray-800 rounded-lg p-8 border border-gray-700 text-center">
         <svg class="w-16 h-16 text-gray-700 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,13 +136,11 @@
     </div>
     @endif
     
-    <!-- Pagination -->
     <div class="mt-6">
         {{ $categories->links() }}
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
 <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
     <div class="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4 border border-red-500/20">
         <div class="text-center mb-4">
@@ -177,28 +172,23 @@
         const resetFilters = document.getElementById('resetFilters');
         const categoryCards = document.querySelectorAll('.category-card');
         
-        // Search functionality
         function filterCategories() {
             const searchTerm = searchInput.value.toLowerCase();
             const sortOption = sortFilter.value;
             
-            // First, filter by search term
             categoryCards.forEach(card => {
                 const name = card.getAttribute('data-name').toLowerCase();
                 const isVisible = name.includes(searchTerm);
                 card.style.display = isVisible ? 'block' : 'none';
             });
             
-            // Then sort the visible cards
             const visibleCards = Array.from(categoryCards).filter(card => card.style.display !== 'none');
             sortCategories(visibleCards, sortOption);
         }
         
-        // Sort functionality
         function sortCategories(cards, sortOption) {
             const container = cards[0].parentNode;
             
-            // Sort the cards based on the selected option
             cards.sort((a, b) => {
                 switch (sortOption) {
                     case 'recent':
@@ -218,13 +208,11 @@
                 }
             });
             
-            // Re-append the cards in the sorted order
             cards.forEach(card => {
                 container.appendChild(card);
             });
         }
         
-        // Reset filters
         function resetAllFilters() {
             searchInput.value = '';
             sortFilter.value = 'recent';
@@ -236,24 +224,20 @@
             sortCategories(Array.from(categoryCards), 'recent');
         }
         
-        // Event listeners
         searchInput.addEventListener('input', filterCategories);
         sortFilter.addEventListener('change', filterCategories);
         resetFilters.addEventListener('click', resetAllFilters);
     });
     
-    // Delete confirmation functionality
     let currentCategoryId = null;
     
     function confirmDelete(categoryId, categoryName) {
         currentCategoryId = categoryId;
         
-        // Update modal content
         document.getElementById('deleteModalTitle').textContent = 'Supprimer la catégorie: ' + categoryName;
         
-        // Show modal
         document.getElementById('deleteModal').classList.remove('hidden');
-        document.body.classList.add('overflow-hidden'); // Prevent scrolling
+        document.body.classList.add('overflow-hidden');
     }
     
     document.getElementById('cancelDelete').addEventListener('click', function() {
@@ -264,7 +248,6 @@
     
     document.getElementById('confirmDelete').addEventListener('click', function() {
         if (currentCategoryId) {
-            // Show loading state
             this.innerHTML = `
                 <svg class="animate-spin w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -274,12 +257,10 @@
             `;
             this.disabled = true;
             
-            // Submit the form
             document.getElementById('delete-form-' + currentCategoryId).submit();
         }
     });
     
-    // Close modal when clicking outside
     document.getElementById('deleteModal').addEventListener('click', function(event) {
         if (event.target === this) {
             this.classList.add('hidden');
@@ -288,7 +269,6 @@
         }
     });
     
-    // Close modal with Escape key
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape' && !document.getElementById('deleteModal').classList.contains('hidden')) {
             document.getElementById('deleteModal').classList.add('hidden');
@@ -300,7 +280,6 @@
 @endpush
 
 <style>
-    /* Card hover effect */
     .category-card {
         transition: all 0.3s ease;
     }
@@ -310,7 +289,6 @@
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     }
     
-    /* Line clamp for descriptions */
     .line-clamp-2 {
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -318,7 +296,6 @@
         overflow: hidden;
     }
     
-    /* Hex pattern background */
     .hex-pattern {
         background: linear-gradient(120deg, #000 0%, transparent 50%),
             linear-gradient(240deg, #000 0%, transparent 50%),

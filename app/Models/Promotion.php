@@ -15,8 +15,8 @@ class Promotion extends Model
         'code',
         'type',
         'valeur',
-        'date_debut',
         'date_fin',
+        'date_debut',
         'utilisation_unique',
     ];
 }

@@ -43,7 +43,6 @@
     </div>
     @endif
 
-    <!-- Filter Bar -->
     <div class="bg-gray-800 rounded-lg p-4 mb-6 border border-purple-500/10">
         <form action="{{ route('clients.index') }}" method="GET" class="flex flex-wrap gap-4">
             <div class="relative flex-1 min-w-[200px]">

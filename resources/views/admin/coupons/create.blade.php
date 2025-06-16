@@ -3,11 +3,9 @@
 @section('content')
 <div class="container mx-auto py-6">
     <div class="max-w-4xl mx-auto">
-        <!-- Futuristic Header -->
         <div class="mb-8 relative">
             <div class="absolute inset-0 bg-gradient-to-r from-purple-900/70 via-black to-cyan-900/70 rounded-lg blur-sm"></div>
             <div class="relative bg-gray-900 border-2 border-purple-500/50 rounded-lg p-6 overflow-hidden shadow-lg">
-                <!-- Grid background with better visibility -->
                 <div class="cyber-grid absolute inset-0 opacity-20"></div>
                 
                 <div class="flex items-center justify-between">
@@ -23,7 +21,6 @@
                     </a>
                 </div>
                 
-                <!-- Futuristic breadcrumbs -->
                 <div class="mt-4 flex items-center text-sm font-mono bg-black/50 p-2 rounded-md border border-gray-700">
                     <a href="{{ route('admin.dashboard') }}" class="text-cyan-400 hover:text-cyan-300 transition-colors flex items-center">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,16 +36,13 @@
             </div>
         </div>
         
-        <!-- Form Card with enhanced visibility -->
         <div class="bg-gray-900 shadow-xl rounded-lg overflow-hidden border-2 border-purple-500/30 relative">
-            <!-- Scanner line effect -->
             <div class="scanner-line absolute left-0 right-0 h-0.5 bg-cyan-400 shadow-glow z-10"></div>
             
             <div class="p-6">
                 <form action="{{ route('coupons.store') }}" method="POST" class="space-y-6">
                     @csrf
                     
-                    <!-- Code Generator Section -->
                     <div class="mb-8 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 rounded-lg p-6 border border-purple-500/20 relative overflow-hidden">
                         <div class="absolute inset-0 cyber-grid opacity-10"></div>
                         <div class="flex flex-col md:flex-row gap-6 items-center justify-between relative">
@@ -85,11 +79,8 @@
                         </div>
                     </div>
                     
-                    <!-- Main Form Contents -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Left Column -->
                         <div class="space-y-6">
-                            <!-- Discount Type Tabs with improved visibility -->
                             <div class="space-y-2">
                                 <label class="block text-base font-medium text-white flex items-center">
                                     <span class="text-purple-400 mr-1">[</span>
@@ -99,7 +90,6 @@
                                 </label>
                                 <div class="cyber-tabs p-1 bg-gray-800 border-2 border-gray-700 rounded-lg" x-data="{ activeTab: '{{ old('discount_type', 'percent') }}' }">
                                     <div class="flex relative">
-                                        <!-- Enhanced highlight -->
                                         <div class="absolute inset-y-0 w-1/2 transition-all duration-300 ease-out-expo"
                                             :class="{'translate-x-0': activeTab === 'percent', 'translate-x-full': activeTab === 'amount'}">
                                             <div class="h-full w-full bg-gradient-to-r from-purple-800/60 to-cyan-800/60 rounded-md"></div>
@@ -126,7 +116,6 @@
                                 </div>
                             </div>
                             
-                            <!-- Discount Percent with improved visibility -->
                             <div class="space-y-2 bg-gray-800/50 p-4 rounded-lg border border-gray-700" x-show="activeTab === 'percent'">
                                 <label for="discount_percent" class="block text-base font-medium text-white flex items-center">
                                     <span class="text-purple-400 mr-1">[</span>
@@ -154,7 +143,6 @@
                                 @enderror
                             </div>
                             
-                            <!-- Discount Amount with improved visibility -->
                             <div class="space-y-2 bg-gray-800/50 p-4 rounded-lg border border-gray-700" x-show="activeTab === 'amount'">
                                 <label for="discount_amount" class="block text-base font-medium text-white flex items-center">
                                     <span class="text-purple-400 mr-1">[</span>
@@ -183,9 +171,7 @@
                             </div>
                         </div>
                         
-                        <!-- Right Column -->
                         <div class="space-y-6">
-                            <!-- Description with improved visibility -->
                             <div class="space-y-2">
                                 <label for="description" class="block text-base font-medium text-white flex items-center">
                                     <span class="text-purple-400 mr-1">[</span>
@@ -208,7 +194,6 @@
                                 @enderror
                             </div>
                             
-                            <!-- Expiration Date with improved visibility -->
                             <div class="space-y-2">
                                 <label for="expires_at" class="block text-base font-medium text-white flex items-center">
                                     <span class="text-purple-400 mr-1">[</span>
@@ -234,7 +219,6 @@
                         </div>
                     </div>
                     
-                    <!-- Active Status with improved visibility -->
                     <div class="bg-gray-800 p-4 rounded-lg border-2 border-gray-700 relative overflow-hidden">
                         <div class="cyber-grid absolute inset-0 opacity-10"></div>
                         <div class="relative flex items-start">
@@ -260,7 +244,6 @@
                         </div>
                     </div>
                     
-                    <!-- Preview section -->
                     <div class="bg-gray-800/60 p-6 rounded-lg border-2 border-gray-700 mt-6 relative overflow-hidden">
                         <div class="absolute inset-0 cyber-grid opacity-10"></div>
                         <h3 class="text-lg font-medium text-white mb-4 relative">
@@ -306,7 +289,6 @@
                         </div>
                     </div>
                     
-                    <!-- Form Actions with improved visibility -->
                     <div class="pt-5 border-t-2 border-gray-700 flex justify-end space-x-3">
                         <a href="{{ route('coupons.index') }}" class="cyber-button-secondary">
                             CANCEL_OPERATION
@@ -325,13 +307,11 @@
 </div>
 
 <style>
-    /* Cyberpunk Text Effect */
     .cyberpunk-text {
         text-shadow: 0 0 5px rgba(139, 92, 246, 0.5), 0 0 10px rgba(139, 92, 246, 0.3);
         letter-spacing: 0.5px;
     }
     
-    /* Enhanced Cyberpunk Grid Background */
     .cyber-grid {
         background-image: 
             linear-gradient(to right, rgba(139, 92, 246, 0.2) 1px, transparent 1px),
@@ -345,7 +325,6 @@
                          linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
     }
     
-    /* Enhanced Scanner Line Animation */
     .scanner-line {
         animation: scan 3s linear infinite;
     }
@@ -355,7 +334,6 @@
         100% { top: 100%; }
     }
     
-    /* Terminal Cursor Animation */
     .terminal-cursor {
         animation: blink 1s step-end infinite;
     }
@@ -365,7 +343,6 @@
         50% { opacity: 0; }
     }
     
-    /* Enhanced Typing Text Animation */
     .typing-text {
         overflow: hidden;
         border-right: 2px solid rgba(6, 182, 212, 0.75);
@@ -383,12 +360,10 @@
         50% { border-color: rgba(6, 182, 212, 0.75) }
     }
     
-    /* Enhanced Shadow Glow Effect */
     .shadow-glow {
         box-shadow: 0 0 8px rgba(34, 211, 238, 0.8);
     }
     
-    /* Custom Cyberpunk Checkbox */
     .cyber-checkbox {
         -webkit-appearance: none;
         appearance: none;
@@ -416,7 +391,6 @@
         clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
     }
     
-    /* Enhanced Cyberpunk Button Styles */
     .cyber-button-primary {
         display: inline-flex;
         align-items: center;
@@ -552,7 +526,6 @@
         box-shadow: 0 0 5px rgba(124, 58, 237, 0.3);
     }
     
-    /* Easy out expo animation */
     .ease-out-expo {
         transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
     }
@@ -562,12 +535,10 @@
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Generate random coupon code
         const generateBtn = document.getElementById('generateCode');
         const codeInput = document.getElementById('code');
         
         generateBtn.addEventListener('click', function() {
-            // Show loading effect
             generateBtn.disabled = true;
             generateBtn.innerHTML = `
                 <div class="flex items-center justify-center">
@@ -579,13 +550,11 @@
                 </div>
             `;
             
-            // Generate code after a short delay for effect
             setTimeout(() => {
                 const prefix = ["CYBER", "TECH", "NEON", "SYNTH", "DIGI", "PULSE", "VOLT", "WAVE", "HACK"][Math.floor(Math.random() * 9)];
-                const number = Math.floor(Math.random() * 90) + 10; // 10-99
+                const number = Math.floor(Math.random() * 90) + 10;
                 const randomCode = `${prefix}${number}`;
                 
-                // Apply with typewriter effect
                 let i = 0;
                 codeInput.value = "";
                 const typeInterval = setInterval(() => {
@@ -594,12 +563,10 @@
                         i++;
                     } else {
                         clearInterval(typeInterval);
-                        // Update preview
                         updatePreview();
                     }
                 }, 50);
                 
-                // Reset button
                 generateBtn.disabled = false;
                 generateBtn.innerHTML = `
                     <div class="flex items-center justify-center gap-2">
@@ -612,7 +579,6 @@
             }, 800);
         });
         
-        // Live preview updates
         const codePreview = document.querySelector('.coupon-preview-code');
         const typePreview = document.querySelector('.coupon-preview-type');
         const valuePreview = document.querySelector('.coupon-preview-value');
@@ -620,8 +586,6 @@
         const descPreview = document.querySelector('.coupon-preview-desc');
         const statusDot = document.querySelector('.coupon-preview-status-dot');
         const statusText = document.querySelector('.coupon-preview-status');
-        
-        // Form elements to watch
         const discountType = document.querySelector('input[name="discount_type"]');
         const discountPercent = document.getElementById('discount_percent');
         const discountAmount = document.getElementById('discount_amount');
@@ -629,10 +593,8 @@
         const expiresAt = document.getElementById('expires_at');
         const isActive = document.getElementById('is_active');
         
-        // Initial preview update
         updatePreview();
         
-        // Add event listeners to all form fields
         codeInput.addEventListener('input', updatePreview);
         discountPercent.addEventListener('input', updatePreview);
         discountAmount.addEventListener('input', updatePreview);
@@ -641,13 +603,10 @@
         isActive.addEventListener('change', updatePreview);
         
         function updatePreview() {
-            // Update code
             codePreview.textContent = codeInput.value || 'CYBER25';
             
-            // Get active tab value
             const activeTabValue = discountType.value;
             
-            // Update type and value
             if (activeTabValue === 'percent') {
                 typePreview.textContent = 'POURCENTAGE';
                 valuePreview.textContent = (discountPercent.value || '25') + '%';
@@ -656,7 +615,6 @@
                 valuePreview.textContent = (discountAmount.value || '10') + ' €';
             }
             
-            // Update expiry
             if (expiresAt.value) {
                 const date = new Date(expiresAt.value);
                 expiryPreview.textContent = date.toLocaleDateString('fr-FR');
@@ -664,10 +622,8 @@
                 expiryPreview.textContent = 'Non défini';
             }
             
-            // Update description
             descPreview.textContent = description.value || 'Description du coupon';
             
-            // Update status
             if (isActive.checked) {
                 statusDot.classList.remove('bg-red-500');
                 statusDot.classList.add('bg-green-500');

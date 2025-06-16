@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Models\Client;
 use App\Models\Order;
-use Illuminate\Http\Request;
 
 class ClientController extends Controller
 {
@@ -14,14 +14,10 @@ class ClientController extends Controller
         $this->middleware('role:administrateur,gestionnaire_commandes');
     }
     
-    /**
-     * Display a listing of clients.
-     */
     public function index(Request $request)
     {
         $query = Client::query();
         
-        // Search functionality
         if ($request->has('search') && $request->search) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -36,17 +32,11 @@ class ClientController extends Controller
         return view('admin.clients.index', compact('clients'));
     }
     
-    /**
-     * Show the form for creating a new client.
-     */
     public function create()
     {
         return view('admin.clients.create');
     }
     
-    /**
-     * Store a newly created client in storage.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -62,32 +52,22 @@ class ClientController extends Controller
             ->with('success', 'Client créé avec succès.');
     }
     
-    /**
-     * Display the specified client.
-     */
     public function show(Client $client)
     {
         $client->load('orders');
         $orderCount = $client->orders->count();
         $totalSpent = $client->orders->sum('total');
         
-        // Get the last 5 orders
         $recentOrders = $client->orders()->latest('date_commande')->take(5)->get();
         
         return view('admin.clients.show', compact('client', 'orderCount', 'totalSpent', 'recentOrders'));
     }
     
-    /**
-     * Show the form for editing the specified client.
-     */
     public function edit(Client $client)
     {
         return view('admin.clients.edit', compact('client'));
     }
     
-    /**
-     * Update the specified client in storage.
-     */
     public function update(Request $request, Client $client)
     {
         $validated = $request->validate([
@@ -103,12 +83,8 @@ class ClientController extends Controller
             ->with('success', 'Client mis à jour avec succès.');
     }
     
-    /**
-     * Remove the specified client from storage.
-     */
     public function destroy(Client $client)
     {
-        // Check if client has orders
         $orderCount = Order::where('client_id', $client->id)->count();
         
         if ($orderCount > 0) {

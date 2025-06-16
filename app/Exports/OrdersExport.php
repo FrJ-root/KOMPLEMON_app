@@ -1,25 +1,18 @@
 <?php
 
 namespace App\Exports;
-
-use App\Models\Order;
 use Illuminate\Support\Collection;
+use App\Models\Order;
 
 class OrdersExport
 {
     protected $order = null;
 
-    /**
-     * Constructor - can accept a single order or will export all orders
-     */
     public function __construct($order = null)
     {
         $this->order = $order;
     }
 
-    /**
-     * Get the data for the export
-     */
     public function collection()
     {
         if ($this->order) {
@@ -29,30 +22,23 @@ class OrdersExport
         return Order::with(['client', 'items.product'])->get();
     }
 
-    /**
-     * Get the export data as an array
-     */
     public function toArray()
     {
         $orders = $this->collection();
         $data = [];
-        
-        // Add headers
         $data[] = [
             'ID',
             'Date',
-            'Client',
-            'Email',
-            'Téléphone',
-            'Adresse',
-            'Statut',
             'Total',
+            'Email',
+            'Client',
+            'Statut',
+            'Adresse',
             'Produits',
+            'Téléphone',
         ];
         
-        // Add order data
         foreach ($orders as $order) {
-            // Load relationships if not already loaded
             if (!$order->relationLoaded('items')) {
                 $order->load('items.product');
             }
@@ -66,15 +52,15 @@ class OrdersExport
             })->implode(', ');
             
             $data[] = [
+                $products,
                 $order->id,
-                $order->date_commande->format('d/m/Y H:i'),
+                $order->statut,
                 $order->client->nom ?? 'N/A',
                 $order->client->email ?? 'N/A',
-                $order->client->telephone ?? 'N/A',
                 $order->client->adresse ?? 'N/A',
-                $order->statut,
+                $order->client->telephone ?? 'N/A',
                 number_format($order->total, 2) . '€',
-                $products,
+                $order->date_commande->format('d/m/Y H:i'),
             ];
         }
         

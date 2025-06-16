@@ -25,33 +25,29 @@ class SettingController extends Controller
     public function update(Request $request)
     {
         $validated = $request->validate([
-            'site_name' => 'required|string|max:100',
-            'site_description' => 'nullable|string',
-            'contact_email' => 'required|email',
-            'phone_number' => 'nullable|string|max:20',
             'address' => 'nullable|string',
-            'social_facebook' => 'nullable|url',
-            'social_twitter' => 'nullable|url',
-            'social_instagram' => 'nullable|url',
             'maintenance_mode' => 'boolean',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'social_twitter' => 'nullable|url',
+            'contact_email' => 'required|email',
+            'social_facebook' => 'nullable|url',
+            'social_instagram' => 'nullable|url',
+            'site_description' => 'nullable|string',
+            'site_name' => 'required|string|max:100',
+            'phone_number' => 'nullable|string|max:20',
             'favicon' => 'nullable|image|mimes:ico,png|max:1024',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
         
-        // Handle file uploads
         if ($request->hasFile('logo')) {
-            // Store logo and update setting
             $logoPath = $request->file('logo')->store('public/settings');
             $this->settings->set('logo', str_replace('public/', 'storage/', $logoPath));
         }
         
         if ($request->hasFile('favicon')) {
-            // Store favicon and update setting
             $faviconPath = $request->file('favicon')->store('public/settings');
             $this->settings->set('favicon', str_replace('public/', 'storage/', $faviconPath));
         }
         
-        // Update other settings
         foreach ($validated as $key => $value) {
             if (!in_array($key, ['logo', 'favicon']) && $request->has($key)) {
                 $this->settings->set($key, $value);

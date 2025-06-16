@@ -101,18 +101,16 @@
 
 @push('styles')
 <style>
-    /* Hide scrollbar while maintaining scroll functionality */
     .hide-scrollbar {
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
-        overflow-y: scroll; /* Allow scrolling */
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+        overflow-y: scroll;
     }
     
     .hide-scrollbar::-webkit-scrollbar {
-        display: none; /* Chrome, Safari, Opera */
+        display: none;
     }
     
-    /* Make tables in articles section also hide scrollbars */
     .hide-scrollbar .overflow-x-auto {
         -ms-overflow-style: none;
         scrollbar-width: none;
@@ -122,7 +120,6 @@
         display: none;
     }
     
-    /* Ensure body doesn't show scrollbar either */
     body {
         overflow-x: hidden;
     }

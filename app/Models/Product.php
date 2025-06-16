@@ -16,20 +16,20 @@ class Product extends Model implements HasMedia
     protected $table = 'produits';
 
     protected $fillable = [
-        'nom',
-        'description',
-        'categorie_id',
-        'prix',
-        'prix_promo',
-        'stock',
-        'ingredients',
         'valeurs_nutritionnelles',
-        'statut',
-        'featured',
-        'suivi_stock',
         'seuil_alerte_stock',
+        'categorie_id',
+        'description',
+        'suivi_stock',
+        'ingredients',
+        'prix_promo',
+        'featured',
+        'statut',
+        'stock',
+        'image',
         'vues',
-        'image'
+        'prix',
+        'nom',
     ];
 
     public function category(): BelongsTo
@@ -37,21 +37,15 @@ class Product extends Model implements HasMedia
         return $this->belongsTo(Category::class, 'categorie_id');
     }
 
-    // Rename this method to avoid conflict with Spatie's media() method
     public function productMedia(): HasMany
     {
         return $this->hasMany(ProductMedia::class, 'produit_id');
     }
 
-    /**
-     * Get the stock status of the product
-     *
-     * @return string
-     */
     public function getStockStatus()
     {
         if (!isset($this->stock_quantity) || !isset($this->stock_threshold)) {
-            return 'in_stock'; // Default status
+            return 'in_stock';
         }
 
         if ($this->stock_quantity <= 0) {

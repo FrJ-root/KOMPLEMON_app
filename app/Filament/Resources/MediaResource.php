@@ -3,13 +3,13 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\MediaResource\Pages;
-use App\Models\ProductMedia;
-use Filament\Forms;
-use Filament\Resources\Form;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
+use Filament\Resources\Form;
+use App\Models\ProductMedia;
 use Filament\Tables;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms;
 
 class MediaResource extends Resource
 {

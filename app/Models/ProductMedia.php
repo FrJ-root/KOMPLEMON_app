@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Model;
 
 class ProductMedia extends Model
 {
@@ -14,8 +14,8 @@ class ProductMedia extends Model
 
     protected $fillable = [
         'produit_id',
-        'url',
         'type',
+        'url',
     ];
 
     public function product(): BelongsTo

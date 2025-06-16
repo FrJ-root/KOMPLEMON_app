@@ -3,17 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+use Carbon\CarbonPeriod;
 use App\Models\Order;
 use Carbon\Carbon;
-use Carbon\CarbonPeriod;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class SalesController extends Controller
 {
-    /**
-     * Get sales evolution data for chart
-     */
     public function getSalesEvolution(Request $request)
     {
         $period = $request->input('period', '30');
@@ -41,7 +38,6 @@ class SalesController extends Controller
                 break;
         }
         
-        // Get sales data from database
         $salesData = DB::table('commandes')
             ->select(DB::raw("{$groupBy} as date"), DB::raw('SUM(total) as total_sales'))
             ->where('created_at', '>=', $startDate)
@@ -50,13 +46,11 @@ class SalesController extends Controller
             ->orderBy(DB::raw($groupBy))
             ->get();
         
-        // Prepare data structure
         $salesByDate = [];
         foreach ($salesData as $data) {
             $salesByDate[$data->date] = $data->total_sales;
         }
         
-        // Generate all dates in the period
         $labels = [];
         $values = [];
         
@@ -96,9 +90,6 @@ class SalesController extends Controller
         ]);
     }
     
-    /**
-     * Render sales evolution chart page
-     */
     public function showSalesEvolution()
     {
         return view('admin.sales.evolution');

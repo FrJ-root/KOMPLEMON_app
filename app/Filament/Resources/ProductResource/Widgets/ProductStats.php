@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\ProductResource\Widgets;
 
-use App\Models\Product;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use App\Models\Product;
 
 class ProductStats extends BaseWidget
 {

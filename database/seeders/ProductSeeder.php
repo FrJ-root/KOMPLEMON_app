@@ -11,15 +11,12 @@ class ProductSeeder extends Seeder
 {
     public function run(): void
     {
-        // Make sure the product images directory exists
         Storage::disk('public')->makeDirectory('products');
         
         $categoryIds = DB::table('categories')->pluck('id')->toArray();
         
-        // Copy sample images from resources to storage
         $this->copySampleImages();
         
-        // Define realistic product data
         $products = [
             [
                 'nom' => 'KOMPLEMON Oméga-3 Premium',
@@ -212,12 +209,8 @@ class ProductSeeder extends Seeder
         DB::table('produits')->insert($products);
     }
     
-    /**
-     * Copy sample product images from resources to storage public directory
-     */
     private function copySampleImages(): void
     {
-        // Sample images to create
         $sampleImages = [
             'omega3.jpg',
             'protein.jpg',
@@ -229,37 +222,18 @@ class ProductSeeder extends Seeder
             'minerals.jpg'
         ];
         
-        // Destination directory in public storage
         $destinationDir = storage_path('app/public/products');
         
-        // Create destination directory if it doesn't exist
         if (!File::exists($destinationDir)) {
             File::makeDirectory($destinationDir, 0755, true);
         }
         
-        // Create a simple placeholder image for each product
         foreach ($sampleImages as $image) {
-            $destinationPath = $destinationDir . '/' . $image;
-            
-            // Create a very simple text file that says it's a placeholder
-            // (This is not actually an image but serves as a placeholder)
-            $content = "This is a placeholder for {$image}. The GD library is required for actual image generation.";
+            $destinationPath = $destinationDir . '/' . $image;$content = "This is a placeholder for {$image}. The GD library is required for actual image generation.";
             File::put($destinationPath, $content);
-            
-            // Alternatively, copy from a placeholder service (commented out as fallback)
-            // $placeholderUrl = "https://via.placeholder.com/300x200.jpg?text=" . str_replace('.jpg', '', $image);
-            // try {
-            //     file_put_contents($destinationPath, file_get_contents($placeholderUrl));
-            // } catch (\Exception $e) {
-            //     // If external service fails, just create a text file
-            //     File::put($destinationPath, "Placeholder for {$image}");
-            // }
         }
     }
     
-    /**
-     * Get category ID by name
-     */
     private function getCategoryId(array $categoryIds, string $categoryName): int
     {
         $category = DB::table('categories')

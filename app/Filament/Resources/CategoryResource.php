@@ -3,13 +3,13 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CategoryResource\Pages;
-use App\Models\Category;
-use Filament\Forms;
-use Filament\Resources\Form;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
+use Filament\Resources\Form;
+use App\Models\Category;
 use Filament\Tables;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms;
 
 class CategoryResource extends Resource
 {

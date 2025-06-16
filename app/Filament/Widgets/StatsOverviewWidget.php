@@ -3,16 +3,15 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Order;
-use App\Models\Product;
 use App\Models\Client;
-use Filament\Widgets\StatsOverviewWidget as BaseWidget;
+use App\Models\Product;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 
 class StatsOverviewWidget extends BaseWidget
 {
     protected static ?int $sort = 1;
     
-    // Set a fixed height to avoid layout issues
     protected int | string | array $columnSpan = 'full';
     
     protected function getStats(): array

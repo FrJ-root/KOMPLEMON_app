@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\ProductResource\Pages;
 
 use App\Filament\Resources\ProductResource;
-use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Notifications\Notification;
+use Filament\Actions;
 
 class EditProduct extends EditRecord
 {
@@ -26,7 +26,6 @@ class EditProduct extends EditRecord
                     $newProduct->nom = $product->nom . ' (copie)';
                     $newProduct->save();
                     
-                    // Copy media if needed
                     foreach ($product->getMedia('product-images') as $media) {
                         $media->copyTo($newProduct, 'product-images');
                     }

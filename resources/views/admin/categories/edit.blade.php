@@ -16,7 +16,6 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <!-- Information panel -->
         <div class="lg:col-span-4 xl:col-span-3 space-y-6">
             <div class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden shadow-lg">
                 <div class="aspect-video bg-gray-900 relative">
@@ -87,7 +86,6 @@
             </div>
         </div>
         
-        <!-- Edit form -->
         <div class="lg:col-span-8 xl:col-span-9">
             <div class="bg-gray-800 rounded-lg p-6 border border-purple-500/10">
                 <form action="{{ route('categories.update', $category) }}" method="POST" enctype="multipart/form-data">
@@ -192,7 +190,6 @@
         const imageInput = document.getElementById('image');
         const removeImageBtn = document.getElementById('remove-image');
         
-        // Image preview
         if (imageInput) {
             imageInput.addEventListener('change', function(e) {
                 if (e.target.files.length > 0) {
@@ -216,7 +213,6 @@
                             </div>
                         `;
                         
-                        // Re-attach event listener to new button
                         document.getElementById('remove-image').addEventListener('click', handleRemoveImage);
                     };
                     
@@ -225,7 +221,6 @@
             });
         }
         
-        // Handle remove image
         function handleRemoveImage() {
             const previewContainer = this.closest('.w-full.md\\:w-1\\/3');
             
@@ -238,18 +233,15 @@
                 </div>
             `;
             
-            // Create a hidden input to signal image removal
             const hiddenInput = document.createElement('input');
             hiddenInput.type = 'hidden';
             hiddenInput.name = 'remove_image';
             hiddenInput.value = '1';
             document.querySelector('form').appendChild(hiddenInput);
             
-            // Reset file input
             document.getElementById('image').value = '';
         }
         
-        // Attach remove image event handler
         if (removeImageBtn) {
             removeImageBtn.addEventListener('click', handleRemoveImage);
         }
