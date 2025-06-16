@@ -438,7 +438,6 @@
         document.getElementById('blockPermissionsForm').submit();
     }
     
-    // Close modal when clicking outside
     document.getElementById('permissionsModal').addEventListener('click', function(event) {
         if (event.target === this) {
             closePermissionsModal();

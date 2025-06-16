@@ -1,40 +1,32 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-
-use App\Http\Controllers\Controller;
-use App\Models\Product;
-use App\Models\ProductMedia;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\ProductMedia;
 use Illuminate\Support\Str;
+use App\Models\Product;
 
-class MediaController extends Controller
-{
-    public function __construct()
-    {
+
+class MediaController extends Controller{
+
+    public function __construct(){
         $this->middleware('role:administrateur,gestionnaire_produits');
     }
     
-    /**
-     * Display a listing of media.
-     */
-    public function index(Request $request)
-    {
+    public function index(Request $request){
         $query = ProductMedia::with('product');
         
-        // Filter by product if specified
         if ($request->has('product_id') && $request->product_id) {
             $query->where('produit_id', $request->product_id);
         }
         
-        // Filter by type if specified
         if ($request->has('type') && $request->type) {
             $query->where('type', $request->type);
         }
         
-        // Search by filename
         if ($request->has('search') && $request->search) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -51,23 +43,16 @@ class MediaController extends Controller
         return view('admin.media.index', compact('media', 'products'));
     }
     
-    /**
-     * Show the form for creating a new media item.
-     */
-    public function create()
-    {
+    public function create(){
         $products = Product::orderBy('nom')->get();
         return view('admin.media.create', compact('products'));
     }
     
-    /**
-     * Store newly created media items in storage.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'produit_id' => 'required|exists:produits,id',
             'files.*' => 'required|file|mimes:jpeg,png,jpg,gif,webp,mp4,mov,avi|max:20480',
+            'produit_id' => 'required|exists:produits,id',
             'type' => 'required|in:image,video',
             'optimize' => 'nullable|boolean',
         ]);
@@ -80,24 +65,20 @@ class MediaController extends Controller
             $fileName = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
             $type = $this->determineFileType($file);
             
-            // Determine storage path based on type
             $storagePath = $type === 'image' ? 'products/images/' : 'products/videos/';
             
             if ($type === 'image') {
-                // Process and optimize image
                 $this->processAndStoreImage($file, $storagePath, $fileName, $shouldOptimize);
             } else {
-                // Store video directly
                 $file->storeAs('public/' . $storagePath, $fileName);
             }
             
-            // Create media record
             $mediaItems[] = [
                 'produit_id' => $validated['produit_id'],
                 'url' => $storagePath . $fileName,
-                'type' => $type,
                 'created_at' => now(),
                 'updated_at' => now(),
+                'type' => $type,
             ];
         }
         
@@ -107,16 +88,11 @@ class MediaController extends Controller
             ->with('success', count($mediaItems) . ' fichiers média ont été ajoutés avec succès.');
     }
     
-    /**
-     * Remove the specified media item from storage.
-     */
     public function destroy(ProductMedia $medium)
     {
-        // Delete file from storage
         if (Storage::disk('public')->exists($medium->url)) {
             Storage::disk('public')->delete($medium->url);
             
-            // Delete thumbnail if it's an image
             if ($medium->type === 'image') {
                 $this->deleteThumbnails($medium->url);
             }
@@ -128,9 +104,6 @@ class MediaController extends Controller
             ->with('success', 'Le média a été supprimé avec succès.');
     }
     
-    /**
-     * Bulk destroy multiple media items.
-     */
     public function bulkDestroy(Request $request)
     {
         $validated = $request->validate([
@@ -144,7 +117,6 @@ class MediaController extends Controller
             if (Storage::disk('public')->exists($media->url)) {
                 Storage::disk('public')->delete($media->url);
                 
-                // Delete thumbnail if it's an image
                 if ($media->type === 'image') {
                     $this->deleteThumbnails($media->url);
                 }
@@ -157,9 +129,6 @@ class MediaController extends Controller
             ->with('success', count($validated['media_ids']) . ' médias ont été supprimés avec succès.');
     }
     
-    /**
-     * Update product main image from media gallery.
-     */
     public function setAsMainImage(Request $request, ProductMedia $medium)
     {
         $request->validate([
@@ -168,123 +137,72 @@ class MediaController extends Controller
         
         $product = Product::find($request->product_id);
         
-        // Only proceed if this is an image type
         if ($medium->type !== 'image') {
             return redirect()->back()->with('error', 'Seules les images peuvent être définies comme image principale.');
         }
         
-        // Update the product's main image
         $product->update(['image' => $medium->url]);
         
         return redirect()->back()->with('success', 'Image principale mise à jour avec succès.');
     }
     
-    /**
-     * Process and store an image with optimizations.
-     */
-    private function processAndStoreImage($file, $storagePath, $fileName, $optimize = true)
+    private function processAndStoreImage($file, $directory = 'uploads')
     {
-        // Create the directory if it doesn't exist
-        Storage::disk('public')->makeDirectory($storagePath . 'thumbnails', 0755, true, true);
-        Storage::disk('public')->makeDirectory($storagePath . 'medium', 0755, true, true);
-        
-        if ($optimize) {
-            // Optimize for web - main image (max 1200px width)
-            $img = Image::make($file)
-                ->resize(1200, null, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                });
-            
-            // Adjust quality based on size
-            $quality = $this->calculateOptimalQuality($img->filesize());
-            
-            // Encode with calculated quality
-            $img->encode(null, $quality);
-            
-            // Save optimized image
-            Storage::disk('public')->put($storagePath . $fileName, $img->stream());
-            
-            // Create medium size (600px)
-            $medium = Image::make($file)
-                ->resize(600, null, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                })
-                ->encode(null, $quality);
-            
-            Storage::disk('public')->put($storagePath . 'medium/' . $fileName, $medium->stream());
-            
-            // Create thumbnail (200x200px)
-            $thumbnail = Image::make($file)
-                ->fit(200, 200)
-                ->encode(null, $quality);
-            
-            Storage::disk('public')->put($storagePath . 'thumbnails/' . $fileName, $thumbnail->stream());
-        } else {
-            // Store original without optimization
-            $file->storeAs('public/' . $storagePath, $fileName);
-            
-            // Still create basic thumbnails
-            $medium = Image::make($file)
-                ->resize(600, null, function ($constraint) {
-                    $constraint->aspectRatio();
-                });
-            
-            Storage::disk('public')->put($storagePath . 'medium/' . $fileName, $medium->encode()->stream());
-            
-            $thumbnail = Image::make($file)->fit(200, 200);
-            Storage::disk('public')->put($storagePath . 'thumbnails/' . $fileName, $thumbnail->encode()->stream());
+        $path = public_path("storage/{$directory}");
+        if (!file_exists($path)) {
+            mkdir($path, 0755, true);
         }
+        
+        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        
+        $img = Image::make($file);
+        
+        if ($img->width() > 1200) {
+            $img->resize(1200, null, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
+        }
+        
+        $img->save("{$path}/{$filename}", 80);
+        
+        return "{$directory}/{$filename}";
     }
     
-    /**
-     * Calculate optimal quality based on file size.
-     */
     private function calculateOptimalQuality($filesize)
     {
-        // Adjust quality based on image size
-        // Larger images get more compression
-        $filesize = $filesize / 1024; // Convert to KB
+        $filesize = $filesize / 1024;
         
         if ($filesize > 5000) {
-            return 60; // Large image (>5MB)
+            return 60;
         } elseif ($filesize > 2000) {
-            return 70; // Medium-large (2-5MB)
+            return 70;
         } elseif ($filesize > 1000) {
-            return 75; // Medium (1-2MB)
+            return 75;
         } elseif ($filesize > 500) {
-            return 80; // Medium-small (0.5-1MB)
+            return 80;
         } else {
-            return 85; // Small image (<0.5MB)
+            return 85;
         }
     }
     
-    /**
-     * Delete all thumbnail versions of an image.
-     */
     private function deleteThumbnails($imagePath)
     {
         $pathInfo = pathinfo($imagePath);
         $directory = $pathInfo['dirname'];
         $filename = $pathInfo['basename'];
         
-        // Delete medium version
         $mediumPath = str_replace($directory, $directory . '/medium', $imagePath);
         if (Storage::disk('public')->exists($mediumPath)) {
             Storage::disk('public')->delete($mediumPath);
         }
         
-        // Delete thumbnail
         $thumbnailPath = str_replace($directory, $directory . '/thumbnails', $imagePath);
         if (Storage::disk('public')->exists($thumbnailPath)) {
             Storage::disk('public')->delete($thumbnailPath);
         }
     }
     
-    /**
-     * Determine file type based on MIME type.
-     */
     private function determineFileType($file)
     {
         $mimeType = $file->getMimeType();

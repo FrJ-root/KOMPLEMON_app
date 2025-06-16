@@ -35,11 +35,19 @@ class Order extends Model
     }
 
     /**
-     * Get the order items for the order
+     * Get the order details (items) for the order
+     */
+    public function orderDetails(): HasMany
+    {
+        return $this->hasMany(OrderDetail::class, 'commande_id');
+    }
+
+    /**
+     * Alias for orderDetails to maintain compatibility with both naming conventions
      */
     public function items(): HasMany
     {
-        return $this->hasMany(OrderItem::class, 'commande_id');
+        return $this->orderDetails();
     }
     
     /**

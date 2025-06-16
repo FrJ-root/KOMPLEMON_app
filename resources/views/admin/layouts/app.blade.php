@@ -163,7 +163,7 @@
 
         <div class="flex">
             <!-- Sidebar -->
-            <div id="sidebar" class="w-64 bg-black min-h-screen p-6">
+            <div id="sidebar" class="w-64 bg-black min-h-screen p-6 relative">
                 <div class="flex items-center gap-2 mb-8">
                     <div class="w-8 h-8 bg-purple-600 rounded flex items-center justify-center text-white">
                         <code class="text-sm">&lt;/&gt;</code>
@@ -254,12 +254,15 @@
                     @endif
                 </nav>
 
-                <a href="#" onclick="toggleLogoutPopup()" class="flex items-center gap-3 text-gray-400 hover:text-gray-200 mt-8">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                    <span>Déconnexion</span>
-                </a>
+                <!-- Position the logout button at the bottom -->
+                <div class="absolute bottom-6 left-6 right-6">
+                    <a href="#" onclick="toggleLogoutPopup()" class="flex items-center gap-3 text-red-500 hover:text-red-300 hover:bg-red-900/20 px-3 py-2 rounded-md transition-all w-full">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        <span>Logout</span>
+                    </a>
+                </div>
             </div>
 
             <!-- Main Content -->
@@ -291,7 +294,6 @@
             popup.classList.toggle('hidden');
         }
         
-        // Add direct logout handler for cases where the popup might have issues
         document.addEventListener('DOMContentLoaded', function() {
             const logoutLink = document.querySelector('a[onclick="toggleLogoutPopup()"]');
             if (logoutLink) {
@@ -301,18 +303,15 @@
                 });
             }
 
-            // Ensure the welcome modal is only shown once by using localStorage
             const welcomeModal = document.getElementById('welcomeModal');
             if (welcomeModal) {
                 const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
                 
                 if (!hasSeenWelcome) {
-                    // Show the modal only if it hasn't been shown before
                     welcomeModal.classList.remove('hidden');
                     localStorage.setItem('hasSeenWelcome', 'true');
                 }
                 
-                // Close welcome modal when clicking close button
                 const closeWelcomeBtn = document.getElementById('closeWelcomeModal');
                 if (closeWelcomeBtn) {
                     closeWelcomeBtn.addEventListener('click', function() {

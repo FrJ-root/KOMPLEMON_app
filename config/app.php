@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Facade;
+use Illuminate\Support\ServiceProvider;
 
 return [
     /*
@@ -153,7 +154,7 @@ return [
     |
     */
 
-    'providers' => [
+    'providers' => ServiceProvider::defaultProviders()->merge([
         /*
          * Laravel Framework Service Providers...
          */
@@ -183,10 +184,6 @@ return [
         /*
          * Package Service Providers...
          */
-        Filament\FilamentServiceProvider::class,
-        Filament\Forms\FormsServiceProvider::class,
-        Filament\Tables\TablesServiceProvider::class,
-        Filament\Notifications\NotificationsServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -198,7 +195,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\FilamentServiceProvider::class, // Add this line
 
-    ],
+    ])->toArray(),
 
     /*
     |--------------------------------------------------------------------------

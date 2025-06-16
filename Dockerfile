@@ -1,9 +1,9 @@
-FROM php:8.2-cli
+FROM php:8.3-cli
 
 RUN apt-get update && apt-get install -y \
     libpng-dev libjpeg-dev libonig-dev libxml2-dev zip unzip git curl \
-    libicu-dev \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd intl
+    libicu-dev libzip-dev \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd intl zip
 
 RUN git config --global --add safe.directory /var/www/html
 
