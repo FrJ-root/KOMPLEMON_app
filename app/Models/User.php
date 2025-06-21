@@ -2,43 +2,97 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Filament\Panel;
+use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Notifications\Notifiable;
+use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
+        'role',
         'name',
         'email',
         'password',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
+        'password' => 'hashed',
+        'blocked_permissions' => 'array',
         'email_verified_at' => 'datetime',
     ];
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return in_array($this->role, [
+            'gestionnaire_commandes',
+            'gestionnaire_produits',
+            'editeur_contenu',
+            'administrateur',
+        ]);
+    }
+
+    public function hasRole(string $role): bool
+    {
+        return $this->role === $role;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'administrateur';
+    }
+
+    public function isProductManager(): bool
+    {
+        return $this->role === 'gestionnaire_produits';
+    }
+
+    public function isOrderManager(): bool
+    {
+        return $this->role === 'gestionnaire_commandes';
+    }
+
+    public function isContentEditor(): bool
+    {
+        return $this->role === 'editeur_contenu';
+    }
+
+    public function hasPermission(string $permission): bool
+    {
+        if ($this->role === 'administrateur') {
+            return true;
+        }
+
+        if (is_array($this->blocked_permissions) && in_array($permission, $this->blocked_permissions)) {
+            return false;
+        }
+
+        return match ($this->role) {
+            'gestionnaire_produits' => in_array($permission, [
+                'manage_categories',
+                'manage_products',
+                'manage_media',
+            ]),
+            'gestionnaire_commandes' => in_array($permission, [
+                'manage_orders',
+                'export_orders',
+                'manage_customers',
+            ]),
+            'editeur_contenu' => in_array($permission, [
+                'manage_articles',
+                'manage_testimonials',
+            ]),
+            default => false,
+        };
+    }
 }

@@ -11,13 +11,13 @@ use Illuminate\Support\Facades\Route;
 class RouteServiceProvider extends ServiceProvider
 {
     /**
-     * The path to the "home" route for your application.
+     * The path to your application's "home" route.
      *
      * Typically, users are redirected here after authentication.
      *
      * @var string
      */
-    public const HOME = '/home';
+    public const HOME = '/admin/dashboard';
 
     /**
      * Define your route model bindings, pattern filters, and other route configuration.
@@ -34,6 +34,21 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
         });
+    }
+    
+    /**
+     * Get the redirect path based on user role.
+     */
+    public static function getHomeRouteForRole($role)
+    {
+        return match ($role) {
+            'administrateur' => '/admin/dashboard',
+            'gestionnaire_produits' => '/admin/products',
+            // Use the correct Filament dashboard path
+            'gestionnaire_commandes' => '/admin/dashboard',
+            'editeur_contenu' => '/admin/articles',
+            default => self::HOME,
+        };
     }
 
     /**

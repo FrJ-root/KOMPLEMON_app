@@ -1,1 +1,1 @@
-import './bootstrap';
+// Main application JavaScript file
